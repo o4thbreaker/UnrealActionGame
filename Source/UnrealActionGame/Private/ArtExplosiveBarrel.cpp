@@ -4,6 +4,7 @@
 #include "ArtExplosiveBarrel.h"
 #include "Components/StaticMeshComponent.h"
 #include "PhysicsEngine/RadialForceComponent.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 AArtExplosiveBarrel::AArtExplosiveBarrel()
@@ -23,17 +24,26 @@ AArtExplosiveBarrel::AArtExplosiveBarrel()
 	RadialForceComponent->bImpulseVelChange = true;
 }
 
+
+void AArtExplosiveBarrel::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	StaticMeshComponent->OnComponentHit.AddDynamic(this, &AArtExplosiveBarrel::OnHit);
+}
+
 // Called when the game starts or when spawned
 void AArtExplosiveBarrel::BeginPlay()
 {
 	Super::BeginPlay();
-
-	StaticMeshComponent->OnComponentHit.AddDynamic(this, &AArtExplosiveBarrel::OnHit);
 }
 
 void AArtExplosiveBarrel::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	RadialForceComponent->FireImpulse();
+
+	FString CombinedString = FString::Printf(TEXT("Hit at location: %s"), *Hit.ImpactPoint.ToString());
+	DrawDebugString(GetWorld(), Hit.ImpactPoint, CombinedString, nullptr, FColor::Green, 2.0f, true);
 }
 
 // Called every frame

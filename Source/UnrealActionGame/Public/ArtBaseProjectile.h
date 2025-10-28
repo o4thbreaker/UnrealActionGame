@@ -4,30 +4,34 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "ArtBaseProjectile.h"
-#include "ArtMagicProjectile.generated.h"
+#include "ArtBaseProjectile.generated.h"
 
 class USphereComponent;
 class UProjectileMovementComponent;
 class UParticleSystemComponent;
 
 UCLASS()
-class UNREALACTIONGAME_API AArtMagicProjectile : public AArtBaseProjectile
+class UNREALACTIONGAME_API AArtBaseProjectile : public AActor
 {
 	GENERATED_BODY()
 	
+protected:
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	USphereComponent* SphereComponent;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UProjectileMovementComponent* MovementComponent;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UParticleSystemComponent* EffectComponent;
+
 public:	
 	// Sets default values for this actor's properties
-	AArtMagicProjectile();
+	AArtBaseProjectile();
 
 protected:
-
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
 
 public:	
 	// Called every frame
