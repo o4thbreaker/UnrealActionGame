@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include <Kismet/KismetMathLibrary.h>
 #include "DrawDebugHelpers.h"
+#include "ArtAttributeComponent.h"
 
 // Sets default values
 AArtCharacter::AArtCharacter()
@@ -23,6 +24,8 @@ AArtCharacter::AArtCharacter()
 	CameraComponent->SetupAttachment(SpringArmComponent);
 
 	InteractionComponent = CreateDefaultSubobject<UArtInteractionComponent>("InteractionComponent");
+
+	AttributeComponent = CreateDefaultSubobject<UArtAttributeComponent>("AttributeComponent");
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 

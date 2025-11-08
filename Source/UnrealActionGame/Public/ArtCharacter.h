@@ -10,6 +10,7 @@ class UCameraComponent;
 class USpringArmComponent;
 class UArtInteractionComponent;
 class UAnimMontage;
+class UArtAttributeComponent;
 
 UCLASS()
 class UNREALACTIONGAME_API AArtCharacter : public ACharacter
@@ -49,6 +50,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	UArtInteractionComponent* InteractionComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UArtAttributeComponent* AttributeComponent;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

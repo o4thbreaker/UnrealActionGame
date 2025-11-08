@@ -5,6 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "ArtAttributeComponent.h"
 
 // Sets default values
 AArtMagicProjectile::AArtMagicProjectile()
@@ -12,7 +13,9 @@ AArtMagicProjectile::AArtMagicProjectile()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// EVERYTHING AS IN BASE CLASS CONSTRUCTOR
+	// EVERYTHING ELSE AS IN BASE CLASS CONSTRUCTOR
+
+	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &AArtMagicProjectile::OnActorOverlap);
 }
 
 // Called when the game starts or when spawned
@@ -27,6 +30,20 @@ void AArtMagicProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* Other
 	if (!(OtherActor == GetInstigator()))
 	{
 		// add code from blueprints
+	}
+}
+
+void AArtMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor && OtherActor != GetInstigator())
+	{
+		UArtAttributeComponent* AttributeComponent = Cast<UArtAttributeComponent>(OtherActor->GetComponentByClass(UArtAttributeComponent::StaticClass()));
+		if (AttributeComponent)
+		{
+			AttributeComponent->ApplyHealthChange(-20.0f);
+
+			this->Destroy();
+		}
 	}
 }
 
