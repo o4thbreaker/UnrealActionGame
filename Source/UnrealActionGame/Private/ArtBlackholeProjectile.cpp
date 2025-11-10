@@ -15,6 +15,8 @@ AArtBlackholeProjectile::AArtBlackholeProjectile()
 
 	// EVERYTHING ELSE AS IN BASE CLASS CONSTRUCTOR
 
+	MovementComponent->InitialSpeed = 1000.0f;
+
 	SphereComponent->SetCollisionProfileName("Blackhole");
 
 	FatalZoneSphereComponent = CreateDefaultSubobject<USphereComponent>("FatalZone");

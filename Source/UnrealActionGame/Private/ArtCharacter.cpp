@@ -103,33 +103,7 @@ void AArtCharacter::PrimaryAttack()
 
 void AArtCharacter::PrimaryAttack_TimeElapsed()
 {
-	// always triggers the assert if class is null
-	if (ensureAlways(ProjectileClass))
-	{
-		FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		SpawnParams.Instigator = this;
-
-		// params for line trace
-		FHitResult HitResult;
-		FCollisionObjectQueryParams ObjectQueryParams;
-		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
-
-		//line trace itself. TODO: fix the magic number
-		FVector CameraEndVector = CameraComponent->GetComponentLocation() + (CameraComponent->GetComponentRotation().Vector() * 5000.0f);
-		bool bTraceResult = GetWorld()->LineTraceSingleByObjectType(HitResult, CameraComponent->GetComponentLocation(), CameraEndVector, ObjectQueryParams);
-		DrawDebugLine(GetWorld(), HandLocation, CameraEndVector, FColor::Cyan, false, 1.0f, 0U, 2.0f);
-		
-		FVector TargetRotationEndVector = bTraceResult ? HitResult.ImpactPoint : CameraEndVector;
-		FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(HandLocation, TargetRotationEndVector);
-
-		FTransform SpawnTransform = FTransform(TargetRotation, HandLocation);
-		
-		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTransform, SpawnParams);
-	}
+	SpawnProjectile(ProjectileClass);
 }
 
 void AArtCharacter::BlackholeAttack()
@@ -142,32 +116,7 @@ void AArtCharacter::BlackholeAttack()
 // need to refactor to one function for spawning projectiles (move them to another class?)
 void AArtCharacter::BlackholeAttack_TimeElapsed()
 {
-	if (ensureAlways(BlackholeProjectileClass))
-	{
-		FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		SpawnParams.Instigator = this;
-
-		// params for line trace
-		FHitResult HitResult;
-		FCollisionObjectQueryParams ObjectQueryParams;
-		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
-
-		//line trace itself. TODO: fix the magic number
-		FVector CameraEndVector = CameraComponent->GetComponentLocation() + (CameraComponent->GetComponentRotation().Vector() * 5000.0f);
-		bool bTraceResult = GetWorld()->LineTraceSingleByObjectType(HitResult, CameraComponent->GetComponentLocation(), CameraEndVector, ObjectQueryParams);
-		DrawDebugLine(GetWorld(), HandLocation, CameraEndVector, FColor::Cyan, false, 1.0f, 0U, 2.0f);
-
-		FVector TargetRotationEndVector = bTraceResult ? HitResult.ImpactPoint : CameraEndVector;
-		FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(HandLocation, TargetRotationEndVector);
-
-		FTransform SpawnTransform = FTransform(TargetRotation, HandLocation);
-
-		GetWorld()->SpawnActor<AActor>(BlackholeProjectileClass, SpawnTransform, SpawnParams);
-	}
+	SpawnProjectile(BlackholeProjectileClass);
 }
 
 void AArtCharacter::TeleportAttack()
@@ -179,35 +128,71 @@ void AArtCharacter::TeleportAttack()
 
 void AArtCharacter::TeleportAttack_TimeElapsed()
 {
-	if (ensureAlways(TeleportProjectileClass))
+	SpawnProjectile(TeleportProjectileClass);
+}
+
+void AArtCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
+{
+	if (ensureAlways(ClassToSpawn))
 	{
 		FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
 
+		//params for trace
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		SpawnParams.Instigator = this;
 
-		// params for line trace
-		FHitResult HitResult;
+		FCollisionShape Shape;
+		Shape.SetSphere(20.0f);
+
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(this);
+
 		FCollisionObjectQueryParams ObjectQueryParams;
 		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
 		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
+		ObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
 
 		//line trace itself. TODO: fix the magic number
+		FHitResult HitResult;
+		FVector CameraStartVector = CameraComponent->GetComponentLocation();
 		FVector CameraEndVector = CameraComponent->GetComponentLocation() + (CameraComponent->GetComponentRotation().Vector() * 5000.0f);
-		bool bTraceResult = GetWorld()->LineTraceSingleByObjectType(HitResult, CameraComponent->GetComponentLocation(), CameraEndVector, ObjectQueryParams);
+
+		bool bTraceResult = GetWorld()->SweepSingleByObjectType(HitResult, CameraStartVector, CameraEndVector,
+			FQuat::Identity, ObjectQueryParams, Shape, QueryParams);
+
 		DrawDebugLine(GetWorld(), HandLocation, CameraEndVector, FColor::Cyan, false, 1.0f, 0U, 2.0f);
 
 		FVector TargetRotationEndVector = bTraceResult ? HitResult.ImpactPoint : CameraEndVector;
-		FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(HandLocation, TargetRotationEndVector);
+
+		// have no idea what that is i googled it
+		FRotator TargetRotation = FRotationMatrix::MakeFromX(CameraEndVector - HandLocation).Rotator();
 
 		FTransform SpawnTransform = FTransform(TargetRotation, HandLocation);
 
-		GetWorld()->SpawnActor<AActor>(TeleportProjectileClass, SpawnTransform, SpawnParams);
+		GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTransform, SpawnParams);
 	}
 }
 
 void AArtCharacter::PrimaryInteract()
 {
 	InteractionComponent->PrimaryInteract();
+}
+
+
+void AArtCharacter::OnHealthChanged(AActor* InstigatorActor, UArtAttributeComponent* OwningComp, float NewHealth, float Delta)
+{
+	if (NewHealth <= 0.0f && Delta < 0.0f)
+	{
+		APlayerController* PController = Cast<APlayerController>(GetController());
+		DisableInput(PController);
+	}
+}
+
+void AArtCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	AttributeComponent->OnHealthChanged.AddDynamic(this, &AArtCharacter::OnHealthChanged);
+
 }

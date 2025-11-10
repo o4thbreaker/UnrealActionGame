@@ -13,7 +13,9 @@ AArtTeleportProjectile::AArtTeleportProjectile()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// EVERYTHING AS IN BASE CLASS CONSTRUCTOR
+	MovementComponent->InitialSpeed = 3000.0f;
+
+	// EVERYTHING ELSE AS IN BASE CLASS CONSTRUCTOR
 }
 
 void AArtTeleportProjectile::PostInitializeComponents()
@@ -47,7 +49,7 @@ void AArtTeleportProjectile::InstigatorTeleportation_TimeElapsed()
 
 	this->Destroy();
 
-	GetInstigator()->SetActorLocation(ProjectileLocation);
+	GetInstigator()->TeleportTo(GetActorLocation(), GetInstigator()->GetActorRotation(), false, false);
 }
 
 void AArtTeleportProjectile::OnSphereComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -57,6 +59,7 @@ void AArtTeleportProjectile::OnSphereComponentHit(UPrimitiveComponent* HitCompon
 	if (OtherActor != GetInstigator())
 	{
 		MovementComponent->StopMovementImmediately();
+		SetActorEnableCollision(false);
 
 		if (GetWorldTimerManager().IsTimerActive(TimerHandle_ProjectileExplosion))
 		{

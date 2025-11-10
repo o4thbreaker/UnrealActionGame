@@ -22,10 +22,9 @@ AArtBaseProjectile::AArtBaseProjectile()
 	EffectComponent->SetupAttachment(SphereComponent);
 
 	MovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("MovementComponent");
-	MovementComponent->InitialSpeed = 1000.0f;
+	MovementComponent->InitialSpeed = 5000.0f;
 	MovementComponent->bRotationFollowsVelocity = true;
 	MovementComponent->bInitialVelocityInLocalSpace = true;
-
 }
 
 // Called when the game starts or when spawned
@@ -34,13 +33,5 @@ void AArtBaseProjectile::BeginPlay()
 	Super::BeginPlay();
 
 	SphereComponent->IgnoreActorWhenMoving(GetInstigator(), true);
-	
-}
-
-// Called every frame
-void AArtBaseProjectile::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }
 
