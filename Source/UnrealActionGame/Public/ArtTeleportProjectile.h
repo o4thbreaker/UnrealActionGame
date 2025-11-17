@@ -9,7 +9,7 @@
 
 class USphereComponent;
 class UProjectileMovementComponent;
-class UParticleSystemComponent;
+//class UParticleSystemComponent;
 class UParticleSystem;
 
 UCLASS()

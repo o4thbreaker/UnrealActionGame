@@ -8,14 +8,18 @@
 #include "ArtMagicProjectile.generated.h"
 
 class USphereComponent;
-class UProjectileMovementComponent;
-class UParticleSystemComponent;
+class UProjectileMovementComponent; 
+class UParticleSystem;
 
 UCLASS()
 class UNREALACTIONGAME_API AArtMagicProjectile : public AArtBaseProjectile
 {
 	GENERATED_BODY()
 	
+protected:
+	UPROPERTY(EditAnywhere, Category = "Explosion")
+	UParticleSystem* ExplosionParticleEmmiter;
+
 public:	
 	// Sets default values for this actor's properties
 	AArtMagicProjectile();
@@ -24,6 +28,8 @@ protected:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual void PostInitializeComponents() override;
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);

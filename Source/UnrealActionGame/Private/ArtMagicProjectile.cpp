@@ -5,6 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include <Kismet/GameplayStatics.h>
 #include "ArtAttributeComponent.h"
 
 // Sets default values
@@ -14,8 +15,6 @@ AArtMagicProjectile::AArtMagicProjectile()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// EVERYTHING ELSE AS IN BASE CLASS CONSTRUCTOR
-
-	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &AArtMagicProjectile::OnActorOverlap);
 }
 
 // Called when the game starts or when spawned
@@ -25,11 +24,24 @@ void AArtMagicProjectile::BeginPlay()
 	
 }
 
+void AArtMagicProjectile::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &AArtMagicProjectile::OnActorOverlap);
+	SphereComponent->OnComponentHit.AddDynamic(this, &AArtMagicProjectile::OnHit);
+}
+
 void AArtMagicProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (!(OtherActor == GetInstigator()))
 	{
-		// add code from blueprints
+		// TODO: transfer code to base class
+		if (ensure(ExplosionParticleEmmiter))
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticleEmmiter, GetActorLocation(), GetActorRotation());
+			this->Destroy();
+		}
 	}
 }
 
