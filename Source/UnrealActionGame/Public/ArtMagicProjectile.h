@@ -10,6 +10,7 @@
 class USphereComponent;
 class UProjectileMovementComponent; 
 class UParticleSystem;
+class UAudioComponent;
 
 UCLASS()
 class UNREALACTIONGAME_API AArtMagicProjectile : public AArtBaseProjectile
@@ -19,6 +20,12 @@ class UNREALACTIONGAME_API AArtMagicProjectile : public AArtBaseProjectile
 protected:
 	UPROPERTY(EditAnywhere, Category = "Explosion")
 	UParticleSystem* ExplosionParticleEmmiter;
+
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	UAudioComponent* FlightSoundComponent;
+
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	UAudioComponent* ImpactSoundComponent;
 
 public:	
 	// Sets default values for this actor's properties
@@ -40,5 +47,8 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+private:
+	void DestroyProjectile();
 
 };

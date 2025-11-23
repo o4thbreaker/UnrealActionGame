@@ -5,6 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Components/AudioComponent.h"
 #include <Kismet/GameplayStatics.h>
 #include "ArtAttributeComponent.h"
 
@@ -14,6 +15,12 @@ AArtMagicProjectile::AArtMagicProjectile()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	FlightSoundComponent = CreateDefaultSubobject<UAudioComponent>("FlightSoundComponent");
+	FlightSoundComponent->bAutoActivate = false;
+
+	ImpactSoundComponent = CreateDefaultSubobject<UAudioComponent>("ImpactSoundComponent");
+	ImpactSoundComponent->bAutoActivate = false;
+
 	// EVERYTHING ELSE AS IN BASE CLASS CONSTRUCTOR
 }
 
@@ -21,7 +28,9 @@ AArtMagicProjectile::AArtMagicProjectile()
 void AArtMagicProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	// TODO: Figure out how to make a continious sound of flight
+	//FlightSoundComponent->Play();
 }
 
 void AArtMagicProjectile::PostInitializeComponents()
@@ -40,7 +49,7 @@ void AArtMagicProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* Other
 		if (ensure(ExplosionParticleEmmiter))
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticleEmmiter, GetActorLocation(), GetActorRotation());
-			this->Destroy();
+			DestroyProjectile();
 		}
 	}
 }
@@ -54,7 +63,7 @@ void AArtMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponen
 		{
 			AttributeComponent->ApplyHealthChange(-20.0f);
 
-			this->Destroy();
+			DestroyProjectile();
 		}
 	}
 }
@@ -63,6 +72,15 @@ void AArtMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponen
 void AArtMagicProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
 
+void AArtMagicProjectile::DestroyProjectile()
+{
+	//FlightSoundComponent->Stop();
+
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSoundComponent->GetSound(), GetActorLocation(), 
+		1.0f, 1.0f, 0.0f, ImpactSoundComponent->AttenuationSettings);
+
+	this->Destroy();
 }
 
