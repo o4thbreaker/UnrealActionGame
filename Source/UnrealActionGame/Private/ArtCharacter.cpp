@@ -40,6 +40,13 @@ void AArtCharacter::BeginPlay()
 	
 }
 
+void AArtCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	AttributeComponent->OnHealthChanged.AddDynamic(this, &AArtCharacter::OnHealthChanged);
+}
+
 // Called every frame
 void AArtCharacter::Tick(float DeltaTime)
 {
@@ -178,17 +185,16 @@ void AArtCharacter::PrimaryInteract()
 
 void AArtCharacter::OnHealthChanged(AActor* InstigatorActor, UArtAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
+	if (Delta < 0.0f)
+	{
+		FString CombinedString = FString::Printf(TEXT("Got hit!"));
+		DrawDebugString(GetWorld(), GetActorLocation(), CombinedString, nullptr, FColor::Green, 2.0f, true);
+
+		GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->TimeSeconds);
+	}
 	if (NewHealth <= 0.0f && Delta < 0.0f)
 	{
 		APlayerController* PController = Cast<APlayerController>(GetController());
 		DisableInput(PController);
 	}
-}
-
-void AArtCharacter::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-
-	AttributeComponent->OnHealthChanged.AddDynamic(this, &AArtCharacter::OnHealthChanged);
-
 }

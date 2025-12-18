@@ -6,11 +6,7 @@
 // Sets default values for this component's properties
 UArtAttributeComponent::UArtAttributeComponent()
 {
-	MaxHealth = 100;
-
-	Health = MaxHealth;
-
-	FMath::Clamp(Health, 0, MaxHealth);
+	Health = 100;
 }
 
 
