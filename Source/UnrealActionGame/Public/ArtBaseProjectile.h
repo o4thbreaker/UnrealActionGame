@@ -25,6 +25,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	UParticleSystemComponent* EffectComponent;
 
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	UAudioComponent* ImpactSoundComponent;
+
 public:	
 	// Sets default values for this actor's properties
 	AArtBaseProjectile();
@@ -33,4 +36,5 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void DestroyProjectile();
 };

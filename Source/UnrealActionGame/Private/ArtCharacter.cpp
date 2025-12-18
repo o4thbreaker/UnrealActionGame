@@ -84,10 +84,6 @@ void AArtCharacter::MoveRight(float Value)
 	ControlRotation.Pitch = 0.0f;
 	ControlRotation.Roll = 0.0f;
 
-	// x - forward (red)
-	// y - right (green)
-	// z - up (blue)
-
 	// gets right vector of camera regardless of pawn's rotation i think
 	FVector RightVector = FRotationMatrix(ControlRotation).GetScaledAxis(EAxis::Y);
 

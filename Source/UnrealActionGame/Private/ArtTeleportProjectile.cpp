@@ -47,7 +47,7 @@ void AArtTeleportProjectile::InstigatorTeleportation_TimeElapsed()
 	if (ensure(ExplosionParticleEmmiter))
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticleEmmiter, GetActorLocation(), GetActorRotation());
 
-	this->Destroy();
+	DestroyProjectile();
 
 	GetInstigator()->TeleportTo(GetActorLocation(), GetInstigator()->GetActorRotation(), false, false);
 }

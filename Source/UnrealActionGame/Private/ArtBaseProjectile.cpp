@@ -3,8 +3,10 @@
 
 #include "ArtBaseProjectile.h"
 #include "Components/SphereComponent.h"
+#include "Components/AudioComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include <Kismet/GameplayStatics.h>
 
 // Sets default values
 AArtBaseProjectile::AArtBaseProjectile()
@@ -25,6 +27,9 @@ AArtBaseProjectile::AArtBaseProjectile()
 	MovementComponent->InitialSpeed = 5000.0f;
 	MovementComponent->bRotationFollowsVelocity = true;
 	MovementComponent->bInitialVelocityInLocalSpace = true;
+
+	ImpactSoundComponent = CreateDefaultSubobject<UAudioComponent>("ImpactSoundComponent");
+	ImpactSoundComponent->bAutoActivate = false;
 }
 
 // Called when the game starts or when spawned
@@ -33,5 +38,16 @@ void AArtBaseProjectile::BeginPlay()
 	Super::BeginPlay();
 
 	SphereComponent->IgnoreActorWhenMoving(GetInstigator(), true);
+}
+
+void AArtBaseProjectile::DestroyProjectile()
+{
+	if (ImpactSoundComponent)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSoundComponent->GetSound(), GetActorLocation(),
+			1.0f, 1.0f, 0.0f, ImpactSoundComponent->AttenuationSettings);
+	}
+
+	this->Destroy();
 }
 

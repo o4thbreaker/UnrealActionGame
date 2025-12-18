@@ -24,9 +24,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Sound")
 	UAudioComponent* FlightSoundComponent;
 
-	UPROPERTY(EditAnywhere, Category = "Sound")
-	UAudioComponent* ImpactSoundComponent;
-
 public:	
 	// Sets default values for this actor's properties
 	AArtMagicProjectile();
@@ -47,8 +44,4 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-private:
-	void DestroyProjectile();
-
 };
