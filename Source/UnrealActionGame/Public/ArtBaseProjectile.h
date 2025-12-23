@@ -16,24 +16,22 @@ class UNREALACTIONGAME_API AArtBaseProjectile : public AActor
 	GENERATED_BODY()
 	
 protected:
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	USphereComponent* SphereComponent;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	UProjectileMovementComponent* MovementComponent;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	UParticleSystemComponent* EffectComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Sound")
 	UAudioComponent* ImpactSoundComponent;
 
 public:	
-	// Sets default values for this actor's properties
 	AArtBaseProjectile();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	virtual void DestroyProjectile();

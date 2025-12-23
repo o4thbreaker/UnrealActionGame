@@ -8,15 +8,12 @@
 #include "Particles/ParticleSystemComponent.h"
 #include <Kismet/GameplayStatics.h>
 
-// Sets default values
 AArtBaseProjectile::AArtBaseProjectile()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	SphereComponent = CreateDefaultSubobject<USphereComponent>("SphereComponent");
-	/*SphereComponent->SetCollisionObjectType(ECC_WorldDynamic);
-	SphereComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);*/
 	SphereComponent->SetCollisionProfileName("Projectile");
 	RootComponent = SphereComponent;
 
@@ -32,12 +29,12 @@ AArtBaseProjectile::AArtBaseProjectile()
 	ImpactSoundComponent->bAutoActivate = false;
 }
 
-// Called when the game starts or when spawned
 void AArtBaseProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 
 	SphereComponent->IgnoreActorWhenMoving(GetInstigator(), true);
+	//UGameplayStatics::SpawnEmitterAttached(CastingEffectComponent,)
 }
 
 void AArtBaseProjectile::DestroyProjectile()

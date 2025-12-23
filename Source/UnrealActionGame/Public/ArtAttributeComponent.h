@@ -14,7 +14,6 @@ class UNREALACTIONGAME_API UArtAttributeComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UArtAttributeComponent();
 
 protected:
@@ -26,11 +25,9 @@ protected:
 	float MaxHealth;
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 public:	
-
 	UPROPERTY(BlueprintAssignable)
 	FOnHealthChanged OnHealthChanged;
 
@@ -39,4 +36,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool IsAlive() const;
+
+	UFUNCTION(BlueprintCallable)
+	bool IsFullHealth() const;
 };

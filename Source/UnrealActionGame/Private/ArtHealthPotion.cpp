@@ -2,12 +2,46 @@
 
 
 #include "ArtHealthPotion.h"
+#include "Components/SphereComponent.h"
+#include "ArtAttributeComponent.h"
 
 void AArtHealthPotion::Interact_Implementation(APawn* InstitgatorPawn)
 {
-	// 1. check if instigator has an attribute component (get component by class of pawn (dont hard connect to character))
-	// 2. check if current health of instigator isnt maximum (ignore instigator otherwise)
-	// 3. give health to the instigator
-	// 4. make potion uninteractable for 10 seconds (make mesh invisible + uninteractable + turn off collisions)
+	if (!ensure(InstitgatorPawn))
+	{
+		return;
+	}
+
+	UArtAttributeComponent* InstigatorAttributeComp = InstitgatorPawn->FindComponentByClass<UArtAttributeComponent>();
+	if (ensure(InstigatorAttributeComp))
+	{
+		AddHealth(InstigatorAttributeComp);
+	}
+}
+
+void AArtHealthPotion::AddHealth(UArtAttributeComponent* AttributeComp)
+{
+	if (!AttributeComp->IsFullHealth())
+	{
+		AttributeComp->ApplyHealthChange(DeltaHealth);
+		MakeUninteractable();
+	}
+}
+
+void AArtHealthPotion::MakeUninteractable()
+{
+	StaticMeshComponent->SetVisibility(false);
+	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	InteractCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	///\TODO: fix magic number
+	GetWorldTimerManager().SetTimer(TimerHandle_SetVisibility, this, &AArtHealthPotion::SetVisibility_TimeElapsed, 10.0f);
+}
+
+void AArtHealthPotion::SetVisibility_TimeElapsed()
+{
+	StaticMeshComponent->SetVisibility(true);
+	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	InteractCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 

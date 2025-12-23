@@ -1,17 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ArtBasePickUpItem.h"
+#include "Components/SphereComponent.h"
 #include "ArtAttributeComponent.h"
 
-// Sets default values
 AArtBasePickUpItem::AArtBasePickUpItem()
 {
-	AttributeComponent = CreateDefaultSubobject<UArtAttributeComponent>("AttributeComponent");
-}
+	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
+	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-void AArtBasePickUpItem::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
+	InteractCollisionComponent = CreateDefaultSubobject<USphereComponent>("InteractSphereCollisionComponent");
+
+	InteractCollisionComponent->SetupAttachment(StaticMeshComponent);
 }
 
 void AArtBasePickUpItem::Interact_Implementation(APawn* InstitgatorPawn)

@@ -9,8 +9,9 @@
 #include <Kismet/KismetMathLibrary.h>
 #include "DrawDebugHelpers.h"
 #include "ArtAttributeComponent.h"
+#include "Particles/ParticleSystemComponent.h"
+#include <Kismet/GameplayStatics.h>
 
-// Sets default values
 AArtCharacter::AArtCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -29,11 +30,12 @@ AArtCharacter::AArtCharacter()
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
-	bUseControllerRotationYaw = false; 
+	bUseControllerRotationYaw = false;
+
+	HandSocketName = "Muzzle_01";
 
 }
 
-// Called when the game starts or when spawned
 void AArtCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -47,7 +49,6 @@ void AArtCharacter::PostInitializeComponents()
 	AttributeComponent->OnHealthChanged.AddDynamic(this, &AArtCharacter::OnHealthChanged);
 }
 
-// Called every frame
 void AArtCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -101,6 +102,11 @@ void AArtCharacter::PrimaryAttack()
 {
 	PlayAnimMontage(AttackAnimation);
 
+	///\TODO: doesn't work for some reason (maybe because i haven't attached casting effect in constructor?)
+
+	/*UGameplayStatics::SpawnEmitterAttached(CastingEffectComponent, GetMesh(), HandSocketName, 
+		FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);*/
+
 	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AArtCharacter::PrimaryAttack_TimeElapsed, 0.2f);
 }
 
@@ -116,7 +122,6 @@ void AArtCharacter::BlackholeAttack()
 	GetWorldTimerManager().SetTimer(TimerHandle_BlackholeAttack, this, &AArtCharacter::BlackholeAttack_TimeElapsed, 0.2f);
 }
 
-// need to refactor to one function for spawning projectiles (move them to another class?)
 void AArtCharacter::BlackholeAttack_TimeElapsed()
 {
 	SpawnProjectile(BlackholeProjectileClass);
@@ -138,7 +143,7 @@ void AArtCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
 {
 	if (ensureAlways(ClassToSpawn))
 	{
-		FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+		FVector HandLocation = GetMesh()->GetSocketLocation(HandSocketName);
 
 		//params for trace
 		FActorSpawnParameters SpawnParams;
@@ -181,7 +186,6 @@ void AArtCharacter::PrimaryInteract()
 {
 	InteractionComponent->PrimaryInteract();
 }
-
 
 void AArtCharacter::OnHealthChanged(AActor* InstigatorActor, UArtAttributeComponent* OwningComp, float NewHealth, float Delta)
 {

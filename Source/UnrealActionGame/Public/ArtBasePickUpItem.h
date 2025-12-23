@@ -8,6 +8,7 @@
 #include "ArtBasePickUpItem.generated.h"
 
 class UArtAttributeComponent;
+class USphereComponent;
 
 UCLASS()
 class UNREALACTIONGAME_API AArtBasePickUpItem : public AActor, public IArtGameplayInterface
@@ -18,14 +19,12 @@ public:
 	AArtBasePickUpItem();
 
 protected:
-	//virtual void BeginPlay() override;
-
-	virtual void PostInitializeComponents() override;
-
 	virtual void Interact_Implementation(APawn* InstitgatorPawn) override;
 
 protected:
+	UPROPERTY(VisibleAnywhere, Category = "Mesh")
+	UStaticMeshComponent* StaticMeshComponent;
 
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UArtAttributeComponent* AttributeComponent;
+	UPROPERTY(VisibleAnywhere, Category = "Collision")
+	USphereComponent* InteractCollisionComponent;
 };

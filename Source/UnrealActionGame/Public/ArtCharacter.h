@@ -11,6 +11,7 @@ class USpringArmComponent;
 class UArtInteractionComponent;
 class UAnimMontage;
 class UArtAttributeComponent;
+class UParticleSystemComponent;
 
 UCLASS()
 class UNREALACTIONGAME_API AArtCharacter : public ACharacter
@@ -18,30 +19,6 @@ class UNREALACTIONGAME_API AArtCharacter : public ACharacter
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<AActor> ProjectileClass;
-
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<AActor> BlackholeProjectileClass;
-
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<AActor> TeleportProjectileClass;
-	
-	UPROPERTY(EditAnywhere, Category="Attack")
-	UAnimMontage* AttackAnimation;
-
-	FTimerHandle TimerHandle_PrimaryAttack;
-	
-	FTimerHandle TimerHandle_BlackholeAttack;
-
-	FTimerHandle TimerHandle_TeleportAttack;
-
-public:
-	// Sets default values for this character's properties
-	AArtCharacter();
-
-protected:
-	
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	USpringArmComponent* SpringArmComponent;
 
@@ -54,13 +31,40 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UArtAttributeComponent* AttributeComponent;
 
-	// Called when the game starts or when spawned
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UParticleSystemComponent* CastingEffectComponent;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	TSubclassOf<AActor> ProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	TSubclassOf<AActor> BlackholeProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	TSubclassOf<AActor> TeleportProjectileClass;
+	
+	UPROPERTY(EditAnywhere, Category="Attack")
+	UAnimMontage* AttackAnimation;
+
+	UPROPERTY(VisibleAnywhere, Category = "Attack")
+	FName HandSocketName;
+
+	FTimerHandle TimerHandle_PrimaryAttack;
+	
+	FTimerHandle TimerHandle_BlackholeAttack;
+
+	FTimerHandle TimerHandle_TeleportAttack;
+
+public:
+	AArtCharacter();
+
+protected:
 	virtual void BeginPlay() override;
 
 	void MoveForward(float Value);
 
 	void MoveRight(float Value);
-	
+
 	void PrimaryAttack();
 	void PrimaryAttack_TimeElapsed();
 
@@ -80,7 +84,6 @@ protected:
 	virtual void PostInitializeComponents() override;
 
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input

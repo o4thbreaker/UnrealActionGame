@@ -6,22 +6,27 @@
 #include "ArtBasePickUpItem.h"
 #include "ArtHealthPotion.generated.h"
 
-/**
- * 
- */
+class UArtAttributeComponent;
+
 UCLASS()
 class UNREALACTIONGAME_API AArtHealthPotion : public AArtBasePickUpItem
 {
 	GENERATED_BODY()
 
 protected:
+	UPROPERTY(BlueprintReadWrite,EditDefaultsOnly, Category = "Health")
+	float DeltaHealth = 50.0f;
 
+	FTimerHandle TimerHandle_SetVisibility;
+
+protected:
 	virtual void Interact_Implementation(APawn* InstitgatorPawn) override;
 
 private:
+	void AddHealth(UArtAttributeComponent* AttributeComp);
 
-	// dunno how to call it
-	void SwitchTrigerrability();
+	/// \TODO: bad naming
+	void MakeUninteractable();
 
-	
+	void SetVisibility_TimeElapsed();
 };
