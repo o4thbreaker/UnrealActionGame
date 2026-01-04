@@ -10,7 +10,7 @@
 AArtAICharacter::AArtAICharacter()
 {
     PawnSensingComponent = CreateDefaultSubobject<UPawnSensingComponent>("PawnSensingComponent");
-
+    AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 void AArtAICharacter::PostInitializeComponents()
