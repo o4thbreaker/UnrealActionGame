@@ -6,10 +6,13 @@
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "DrawDebugHelpers.h"
+#include "ArtAttributeComponent.h"
 
 AArtAICharacter::AArtAICharacter()
 {
     PawnSensingComponent = CreateDefaultSubobject<UPawnSensingComponent>("PawnSensingComponent");
+    AttributeComponent = CreateDefaultSubobject<UArtAttributeComponent>("AttributeComponent");
+
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
@@ -18,6 +21,13 @@ void AArtAICharacter::PostInitializeComponents()
     Super::PostInitializeComponents();
 
     PawnSensingComponent->OnSeePawn.AddDynamic(this, &AArtAICharacter::OnPawnSeen);
+    AttributeComponent->OnHealthChanged.AddDynamic(this, &AArtAICharacter::OnHealthChanged);
+}
+
+void AArtAICharacter::OnHealthChanged(AActor* InstigatorActor, UArtAttributeComponent* OwningComp, float NewHealth, float Delta)
+{
+    FString CombinedString = FString::Printf(TEXT("%f"), AttributeComponent->GetHealth());
+    DrawDebugString(GetWorld(), GetActorLocation(), CombinedString, nullptr, FColor::Red, 1.0f, true);
 }
 
 void AArtAICharacter::OnPawnSeen(APawn* Pawn)
@@ -30,7 +40,7 @@ void AArtAICharacter::OnPawnSeen(APawn* Pawn)
 
         BBComponent->SetValueAsObject("TargetActor", Pawn);
 
-        DrawDebugString(GetWorld(), GetActorLocation(), "Player Spotted", nullptr, FColor::White, 4.0f, true);
+        DrawDebugString(GetWorld(), GetActorLocation(), "SEE U", nullptr, FColor::White, 0.1f, false);
     }
 }
 

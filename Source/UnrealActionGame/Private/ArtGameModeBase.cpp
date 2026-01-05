@@ -49,6 +49,7 @@ void AArtGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* Query
 		AArtAICharacter* Bot = *It;
 
 		// bloody mess
+		/// \TODO: add attribute component to ai to resolve bug
 		UArtAttributeComponent* AttributeComp = Cast<UArtAttributeComponent>(Bot->GetComponentByClass(UArtAttributeComponent::StaticClass()));
 		if (AttributeComp && AttributeComp->IsAlive())
 		{

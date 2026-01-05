@@ -16,6 +16,16 @@ void UArtAttributeComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
+float UArtAttributeComponent::GetHealth() const
+{
+	return Health;
+}
+
+float UArtAttributeComponent::GetMaxHealth() const
+{
+	return MaxHealth;
+}
+
 bool UArtAttributeComponent::ApplyHealthChange(float Delta)
 {
 	float OldHealth = Health;

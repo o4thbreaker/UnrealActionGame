@@ -7,6 +7,7 @@
 #include "ArtAICharacter.generated.h"
 
 class UPawnSensingComponent;
+class UArtAttributeComponent;
 
 UCLASS()
 class UNREALACTIONGAME_API AArtAICharacter : public ACharacter
@@ -23,6 +24,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UPawnSensingComponent* PawnSensingComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UArtAttributeComponent* AttributeComponent;
+
+	UFUNCTION()
+	void OnHealthChanged(AActor* InstigatorActor, UArtAttributeComponent* OwningComp, float NewHealth, float Delta);
 
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);
