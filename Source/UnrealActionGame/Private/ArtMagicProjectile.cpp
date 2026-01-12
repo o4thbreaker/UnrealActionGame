@@ -56,10 +56,11 @@ void AArtMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponen
 {
 	if (OtherActor && OtherActor != GetInstigator())
 	{
+		//UE_LOG(LogTemp, Log, TEXT("Actor %s is overlaping with %s"), *GetInstigator()->GetName(), *OtherActor->GetName());
 		UArtAttributeComponent* AttributeComponent = Cast<UArtAttributeComponent>(OtherActor->GetComponentByClass(UArtAttributeComponent::StaticClass()));
 		if (AttributeComponent)
 		{
-			AttributeComponent->ApplyHealthChange(-20.0f);
+			AttributeComponent->ApplyHealthChange(-DamageAmount);
 
 			DestroyProjectile();
 		}

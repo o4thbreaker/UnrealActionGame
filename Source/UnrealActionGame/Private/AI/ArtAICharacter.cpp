@@ -7,6 +7,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "DrawDebugHelpers.h"
 #include "ArtAttributeComponent.h"
+#include "BrainComponent.h"
 
 AArtAICharacter::AArtAICharacter()
 {
@@ -26,8 +27,28 @@ void AArtAICharacter::PostInitializeComponents()
 
 void AArtAICharacter::OnHealthChanged(AActor* InstigatorActor, UArtAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
-    FString CombinedString = FString::Printf(TEXT("%f"), AttributeComponent->GetHealth());
-    DrawDebugString(GetWorld(), GetActorLocation(), CombinedString, nullptr, FColor::Red, 1.0f, true);
+    if (Delta < 0.0f)
+    {
+        FString CombinedString = FString::Printf(TEXT("Ouch!"), AttributeComponent->GetHealth());
+        //DrawDebugString(GetWorld(), GetActorLocation(), CombinedString, nullptr, FColor::Green, 2.0f, true);
+
+        if (NewHealth <= 0.0f)
+        {
+            // stop BT
+            AAIController* AIC = Cast<AAIController>(GetController());
+            if (AIC)
+            {
+                AIC->GetBrainComponent()->StopLogic("Killed");
+            }
+            // ragdoll
+            GetMesh()->SetCollisionProfileName("Ragdoll");
+            GetMesh()->SetAllBodiesSimulatePhysics(true);
+            
+
+            // delete actor after n seconds
+            SetLifeSpan(10.0f);
+        }
+    }
 }
 
 void AArtAICharacter::OnPawnSeen(APawn* Pawn)

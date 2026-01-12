@@ -24,23 +24,6 @@ void AArtGameModeBase::StartPlay()
 
 void AArtGameModeBase::SpawnBotTimerElapsed()
 {
-	// dont know why we're passubg this as querier and not the players
-	UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, SpawnBotQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
-	if (ensure(QueryInstance))
-	{
-		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &AArtGameModeBase::OnQueryCompleted);
-
-	}
-}
-
-void AArtGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
-{
-	if (QueryStatus != EEnvQueryStatus::Success)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Spawn bot EQS Query failed"));
-		return;
-	}
-
 	int32 NumberOfAliveBots = 0;
 
 	// TActorIterator is just a better (performance-wise) version of GetAllActorsOfClass
@@ -51,7 +34,7 @@ void AArtGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* Query
 		// bloody mess
 		/// \TODO: add attribute component to ai to resolve bug
 		UArtAttributeComponent* AttributeComp = Cast<UArtAttributeComponent>(Bot->GetComponentByClass(UArtAttributeComponent::StaticClass()));
-		if (AttributeComp && AttributeComp->IsAlive())
+		if (ensure(AttributeComp) && AttributeComp->IsAlive())
 		{
 			NumberOfAliveBots++;
 		}
@@ -66,6 +49,24 @@ void AArtGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* Query
 
 	if (NumberOfAliveBots >= MaxBotCount)
 	{
+		UE_LOG(LogTemp, Log, TEXT("Maximum capacity of bots spawning"));
+		return;
+	}
+
+	// dont know why we're passubg this as querier and not the players
+	UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, SpawnBotQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
+	if (ensure(QueryInstance))
+	{
+		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &AArtGameModeBase::OnQueryCompleted);
+
+	}
+}
+
+void AArtGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
+{
+	if (QueryStatus != EEnvQueryStatus::Success)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Spawn bot EQS Query failed"));
 		return;
 	}
 	

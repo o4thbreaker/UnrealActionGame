@@ -26,6 +26,7 @@ AArtBaseProjectile::AArtBaseProjectile()
 	MovementComponent->bInitialVelocityInLocalSpace = true;
 
 	ImpactSoundComponent = CreateDefaultSubobject<UAudioComponent>("ImpactSoundComponent");
+	ImpactSoundComponent->SetupAttachment(RootComponent);
 	ImpactSoundComponent->bAutoActivate = false;
 }
 

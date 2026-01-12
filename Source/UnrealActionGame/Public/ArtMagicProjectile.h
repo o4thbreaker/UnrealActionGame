@@ -18,6 +18,9 @@ class UNREALACTIONGAME_API AArtMagicProjectile : public AArtBaseProjectile
 	GENERATED_BODY()
 	
 protected:
+	UPROPERTY(EditAnywhere, Category = "Damage")
+	float DamageAmount = 20.0f;
+
 	UPROPERTY(EditAnywhere, Category = "Explosion")
 	UParticleSystem* ExplosionParticleEmmiter;
 

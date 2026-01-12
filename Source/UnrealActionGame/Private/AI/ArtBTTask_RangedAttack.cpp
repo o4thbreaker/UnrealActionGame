@@ -32,8 +32,8 @@ EBTNodeResult::Type UArtBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent&
 
 		FActorSpawnParameters Params;
 		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		Params.Instigator = OwnerComp.GetAIOwner()->GetPawn();
 
-		/// \BUG: this projectile hits minion himself
 		AActor* NewProjectile = GetWorld()->SpawnActor<AActor>(ProjectileClass, MuzzleLocation, MuzzleRotation, Params);
 
 		return NewProjectile ? EBTNodeResult::Succeeded : EBTNodeResult::Failed;
