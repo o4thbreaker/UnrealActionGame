@@ -31,9 +31,7 @@ void AArtGameModeBase::SpawnBotTimerElapsed()
 	{
 		AArtAICharacter* Bot = *It;
 
-		// bloody mess
-		/// \TODO: add attribute component to ai to resolve bug
-		UArtAttributeComponent* AttributeComp = Cast<UArtAttributeComponent>(Bot->GetComponentByClass(UArtAttributeComponent::StaticClass()));
+		UArtAttributeComponent* AttributeComp = UArtAttributeComponent::GetAttributes(Bot);
 		if (ensure(AttributeComp) && AttributeComp->IsAlive())
 		{
 			NumberOfAliveBots++;

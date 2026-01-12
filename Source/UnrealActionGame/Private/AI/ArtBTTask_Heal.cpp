@@ -17,7 +17,7 @@ EBTNodeResult::Type UArtBTTask_Heal::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 			UArtAttributeComponent* AttributeComp = Cast<UArtAttributeComponent>(AIPawn->GetComponentByClass(UArtAttributeComponent::StaticClass()));
 			if (ensure(AttributeComp))
 			{
-				AttributeComp->ApplyHealthChange(AttributeComp->GetMaxHealth());
+				AttributeComp->ApplyHealthChange(MyController, AttributeComp->GetMaxHealth());
 				return EBTNodeResult::Succeeded;
 			}
 		}

@@ -5,6 +5,12 @@
 #include "AIController.h"
 #include "GameFramework/Character.h"
 #include "BehaviorTree/BlackboardComponent.h" 
+#include "ArtAttributeComponent.h"
+
+UArtBTTask_RangedAttack::UArtBTTask_RangedAttack()
+{
+	MaxBulletSpread = 2.0f;
+}
 
 EBTNodeResult::Type UArtBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
@@ -26,13 +32,21 @@ EBTNodeResult::Type UArtBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent&
 			return EBTNodeResult::Failed;
 		}
 
+		if (!UArtAttributeComponent::IsActorAlive(TargetActor))
+		{
+			return EBTNodeResult::Failed;
+		}
+
 		// vector algebra stuff
 		FVector Direction = TargetActor->GetActorLocation() - MuzzleLocation;
 		FRotator MuzzleRotation = Direction.Rotation();
 
+		MuzzleRotation.Pitch += FMath::RandRange(0.0f, MaxBulletSpread); // 0 to not shoot the floor
+		MuzzleRotation.Yaw += FMath::RandRange(-MaxBulletSpread, MaxBulletSpread);
+
 		FActorSpawnParameters Params;
 		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		Params.Instigator = OwnerComp.GetAIOwner()->GetPawn();
+		Params.Instigator = MyPawn;
 
 		AActor* NewProjectile = GetWorld()->SpawnActor<AActor>(ProjectileClass, MuzzleLocation, MuzzleRotation, Params);
 

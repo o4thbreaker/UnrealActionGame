@@ -44,9 +44,6 @@ void AArtTeleportProjectile::InstigatorTeleportation_TimeElapsed()
 {
 	FVector ProjectileLocation = GetActorLocation();
 
-	if (ensure(ExplosionParticleEmmiter))
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticleEmmiter, GetActorLocation(), GetActorRotation());
-
 	DestroyProjectile();
 
 	GetInstigator()->TeleportTo(GetActorLocation(), GetInstigator()->GetActorRotation(), false, false);

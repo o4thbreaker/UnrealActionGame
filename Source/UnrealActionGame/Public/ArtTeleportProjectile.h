@@ -19,9 +19,6 @@ class UNREALACTIONGAME_API AArtTeleportProjectile : public AArtBaseProjectile
 
 protected:
 
-	UPROPERTY(EditAnywhere, Category = "Explosion")
-	UParticleSystem* ExplosionParticleEmmiter;
-
 	FTimerHandle TimerHandle_ProjectileExplosion;
 	FTimerHandle TimerHandle_InstigatorTeleportation;
 

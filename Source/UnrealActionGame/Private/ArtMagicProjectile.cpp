@@ -43,12 +43,7 @@ void AArtMagicProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* Other
 {
 	if (!(OtherActor == GetInstigator()))
 	{
-		/// \TODO: transfer code to base class
-		if (ensure(ExplosionParticleEmmiter))
-		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticleEmmiter, GetActorLocation(), GetActorRotation());
-			DestroyProjectile();
-		}
+		DestroyProjectile();
 	}
 }
 
@@ -60,7 +55,7 @@ void AArtMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponen
 		UArtAttributeComponent* AttributeComponent = Cast<UArtAttributeComponent>(OtherActor->GetComponentByClass(UArtAttributeComponent::StaticClass()));
 		if (AttributeComponent)
 		{
-			AttributeComponent->ApplyHealthChange(-DamageAmount);
+			AttributeComponent->ApplyHealthChange(GetInstigator(), -DamageAmount);
 
 			DestroyProjectile();
 		}

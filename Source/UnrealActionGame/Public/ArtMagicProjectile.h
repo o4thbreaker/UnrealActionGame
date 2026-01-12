@@ -21,9 +21,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Damage")
 	float DamageAmount = 20.0f;
 
-	UPROPERTY(EditAnywhere, Category = "Explosion")
-	UParticleSystem* ExplosionParticleEmmiter;
-
 	UPROPERTY(EditAnywhere, Category = "Sound")
 	UAudioComponent* FlightSoundComponent;
 

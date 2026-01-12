@@ -15,6 +15,8 @@ AArtAICharacter::AArtAICharacter()
     AttributeComponent = CreateDefaultSubobject<UArtAttributeComponent>("AttributeComponent");
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+    TimeToHitParamName = "TimeToHit";
 }
 
 void AArtAICharacter::PostInitializeComponents()
@@ -32,6 +34,13 @@ void AArtAICharacter::OnHealthChanged(AActor* InstigatorActor, UArtAttributeComp
         FString CombinedString = FString::Printf(TEXT("Ouch!"), AttributeComponent->GetHealth());
         //DrawDebugString(GetWorld(), GetActorLocation(), CombinedString, nullptr, FColor::Green, 2.0f, true);
 
+        if (InstigatorActor != this)
+        {
+            SetTargetActor(InstigatorActor);
+        }
+
+        GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+
         if (NewHealth <= 0.0f)
         {
             // stop BT
@@ -43,6 +52,8 @@ void AArtAICharacter::OnHealthChanged(AActor* InstigatorActor, UArtAttributeComp
             // ragdoll
             GetMesh()->SetCollisionProfileName("Ragdoll");
             GetMesh()->SetAllBodiesSimulatePhysics(true);
+
+            /// \TODO: clean up unused BeginPlays and Ticks in other classes  
             
 
             // delete actor after n seconds
@@ -51,17 +62,19 @@ void AArtAICharacter::OnHealthChanged(AActor* InstigatorActor, UArtAttributeComp
     }
 }
 
-void AArtAICharacter::OnPawnSeen(APawn* Pawn)
+void AArtAICharacter::SetTargetActor(AActor* NewTarget)
 {
     AAIController* AIController = Cast<AAIController>(GetController());
 
     if (AIController)
     {
-        UBlackboardComponent* BBComponent = AIController->GetBlackboardComponent();
-
-        BBComponent->SetValueAsObject("TargetActor", Pawn);
-
-        DrawDebugString(GetWorld(), GetActorLocation(), "SEE U", nullptr, FColor::White, 0.1f, false);
+        AIController->GetBlackboardComponent()->SetValueAsObject("TargetActor", NewTarget);
     }
+}
+
+void AArtAICharacter::OnPawnSeen(APawn* Pawn)
+{
+   
+    SetTargetActor(Pawn);
 }
 

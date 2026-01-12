@@ -9,6 +9,7 @@
 class USphereComponent;
 class UProjectileMovementComponent;
 class UParticleSystemComponent;
+class UParticleSystem;
 
 UCLASS(ABSTRACT)
 class UNREALACTIONGAME_API AArtBaseProjectile : public AActor
@@ -24,6 +25,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	UParticleSystemComponent* EffectComponent;
+
+	UPROPERTY(EditAnywhere, Category = "Explosion")
+	UParticleSystem* ExplosionParticleEmmiter;
 
 	UPROPERTY(EditAnywhere, Category = "Sound")
 	UAudioComponent* ImpactSoundComponent;

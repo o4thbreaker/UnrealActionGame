@@ -23,7 +23,7 @@ void AArtHealthPotion::AddHealth(UArtAttributeComponent* AttributeComp)
 {
 	if (!AttributeComp->IsFullHealth())
 	{
-		AttributeComp->ApplyHealthChange(DeltaHealth);
+		AttributeComp->ApplyHealthChange(this, DeltaHealth);
 		MakeUninteractable();
 	}
 }

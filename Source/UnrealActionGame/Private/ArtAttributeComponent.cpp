@@ -2,6 +2,7 @@
 
 #include "ArtAttributeComponent.h"
 
+
 UArtAttributeComponent::UArtAttributeComponent()
 {
 	MaxHealth = 100;
@@ -26,7 +27,7 @@ float UArtAttributeComponent::GetMaxHealth() const
 	return MaxHealth;
 }
 
-bool UArtAttributeComponent::ApplyHealthChange(float Delta)
+bool UArtAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
 	float OldHealth = Health;
 
@@ -34,7 +35,7 @@ bool UArtAttributeComponent::ApplyHealthChange(float Delta)
 
 	float ActualDelta = Health - OldHealth;
 	
-	OnHealthChanged.Broadcast(nullptr, this, Health, ActualDelta);
+	OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
 
 	return ActualDelta != 0;
 }
@@ -47,5 +48,28 @@ bool UArtAttributeComponent::IsAlive() const
 bool UArtAttributeComponent::IsFullHealth() const
 {
 	return MaxHealth <= Health;
+}
+
+
+UArtAttributeComponent* UArtAttributeComponent::GetAttributes(AActor* FromActor)
+{
+	if (FromActor)
+	{
+		return Cast<UArtAttributeComponent>(FromActor->GetComponentByClass(UArtAttributeComponent::StaticClass()));
+	}
+
+	return nullptr;
+}
+
+bool UArtAttributeComponent::IsActorAlive(AActor* Actor)
+{
+	UArtAttributeComponent* AttributeComponent = GetAttributes(Actor);
+
+	if (AttributeComponent)
+	{
+		return AttributeComponent->IsAlive();
+	}
+
+	return false;
 }
 

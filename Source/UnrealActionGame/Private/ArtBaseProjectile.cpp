@@ -6,6 +6,7 @@
 #include "Components/AudioComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Particles/ParticleSystem.h"
 #include <Kismet/GameplayStatics.h>
 
 AArtBaseProjectile::AArtBaseProjectile()
@@ -28,6 +29,8 @@ AArtBaseProjectile::AArtBaseProjectile()
 	ImpactSoundComponent = CreateDefaultSubobject<UAudioComponent>("ImpactSoundComponent");
 	ImpactSoundComponent->SetupAttachment(RootComponent);
 	ImpactSoundComponent->bAutoActivate = false;
+
+	//ExplosionParticleEmmiter = CreateDefaultSubobject<UParticleSystem>("ExplostionParticle");
 }
 
 void AArtBaseProjectile::BeginPlay()
@@ -44,6 +47,11 @@ void AArtBaseProjectile::DestroyProjectile()
 	{
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSoundComponent->GetSound(), GetActorLocation(),
 			1.0f, 1.0f, 0.0f, ImpactSoundComponent->AttenuationSettings);
+	}
+
+	if (ExplosionParticleEmmiter)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticleEmmiter, GetActorLocation(), GetActorRotation());
 	}
 
 	this->Destroy();
