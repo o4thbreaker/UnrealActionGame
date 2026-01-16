@@ -8,6 +8,8 @@
 
 class UPawnSensingComponent;
 class UArtAttributeComponent;
+class UUserWidget;
+class UArtWorldUserWidget;
 
 UCLASS()
 class UNREALACTIONGAME_API AArtAICharacter : public ACharacter
@@ -22,6 +24,11 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Effects")
 	FName TimeToHitParamName;
+
+	UArtWorldUserWidget* ActiveHealthBar;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> HealthBarWidgetClass;
 
 	void SetTargetActor(AActor* NewTarget);
 

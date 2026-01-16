@@ -8,6 +8,7 @@
 #include "DrawDebugHelpers.h"
 #include "ArtAttributeComponent.h"
 #include "BrainComponent.h"
+#include "ArtWorldUserWidget.h"
 
 AArtAICharacter::AArtAICharacter()
 {
@@ -38,6 +39,18 @@ void AArtAICharacter::OnHealthChanged(AActor* InstigatorActor, UArtAttributeComp
         {
             SetTargetActor(InstigatorActor);
         }
+
+        if (ActiveHealthBar == nullptr)
+        {
+            ActiveHealthBar = CreateWidget<UArtWorldUserWidget>(GetWorld(), HealthBarWidgetClass);
+            if (ActiveHealthBar)
+            {
+                UE_LOG(LogTemp, Log, TEXT("Spawning health widget"));
+                ActiveHealthBar->AttachedActor = this;
+                ActiveHealthBar->AddToViewport();
+            }
+        }
+        
 
         GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
 
