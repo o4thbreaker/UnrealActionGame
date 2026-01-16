@@ -47,4 +47,6 @@ public:
 	//BeginPlay for gamemodes
 	virtual void StartPlay() override;
 	
+	UFUNCTION(Exec)
+	void KillAll();
 };

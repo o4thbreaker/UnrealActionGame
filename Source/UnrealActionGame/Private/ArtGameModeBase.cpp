@@ -22,6 +22,21 @@ void AArtGameModeBase::StartPlay()
 	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &AArtGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval, true);
 }
 
+void AArtGameModeBase::KillAll()
+{
+	for (TActorIterator<AArtAICharacter> It(GetWorld()); It; ++It)
+	{
+		AArtAICharacter* Bot = *It;
+
+		UArtAttributeComponent* AttributeComponent = UArtAttributeComponent::GetAttributes(Bot);
+		if (ensure(AttributeComponent) && AttributeComponent->IsAlive())
+		{
+			/// \TODO: can pass in player for kill credit
+			AttributeComponent->Kill(this);
+		}
+	}
+}
+
 void AArtGameModeBase::SpawnBotTimerElapsed()
 {
 	int32 NumberOfAliveBots = 0;

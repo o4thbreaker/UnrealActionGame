@@ -17,6 +17,11 @@ void UArtAttributeComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
+bool UArtAttributeComponent::Kill(AActor* InstigatorActor)
+{
+	return ApplyHealthChange(InstigatorActor, -GetMaxHealth());
+}
+
 float UArtAttributeComponent::GetHealth() const
 {
 	return Health;
@@ -29,6 +34,11 @@ float UArtAttributeComponent::GetMaxHealth() const
 
 bool UArtAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
+	if (!GetOwner()->CanBeDamaged())
+	{
+		return false;
+	}
+
 	float OldHealth = Health;
 
 	Health = FMath::Clamp(Health + Delta, 0.0f, MaxHealth);

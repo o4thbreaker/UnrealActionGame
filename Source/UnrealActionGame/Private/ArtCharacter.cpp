@@ -77,6 +77,11 @@ void AArtCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 }
 
+void AArtCharacter::HealSelf(float Amount /* = 100 */)
+{
+	AttributeComponent->ApplyHealthChange(this, Amount);
+}
+
 void AArtCharacter::MoveForward(float Value)
 {
 	FRotator ControlRotation = GetControlRotation();

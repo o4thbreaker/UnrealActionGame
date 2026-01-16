@@ -36,6 +36,9 @@ protected:
 
 public:	
 
+	UFUNCTION(BlueprintCallable)
+	bool Kill(AActor* InstigatorActor);
+
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	float GetHealth() const;
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
