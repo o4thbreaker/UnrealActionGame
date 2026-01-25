@@ -9,6 +9,8 @@
 #include "ArtAttributeComponent.h"
 #include "BrainComponent.h"
 #include "ArtWorldUserWidget.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AArtAICharacter::AArtAICharacter()
 {
@@ -16,6 +18,9 @@ AArtAICharacter::AArtAICharacter()
     AttributeComponent = CreateDefaultSubobject<UArtAttributeComponent>("AttributeComponent");
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+    GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+    GetMesh()->SetGenerateOverlapEvents(true);
 
     TimeToHitParamName = "TimeToHit";
 }
@@ -54,6 +59,7 @@ void AArtAICharacter::OnHealthChanged(AActor* InstigatorActor, UArtAttributeComp
 
         GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
 
+        // DEAD
         if (NewHealth <= 0.0f)
         {
             // stop BT
@@ -65,6 +71,9 @@ void AArtAICharacter::OnHealthChanged(AActor* InstigatorActor, UArtAttributeComp
             // ragdoll
             GetMesh()->SetCollisionProfileName("Ragdoll");
             GetMesh()->SetAllBodiesSimulatePhysics(true);
+
+            GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+            GetCharacterMovement()->DisableMovement();
 
             /// \TODO: clean up unused BeginPlays and Ticks in other classes  
             

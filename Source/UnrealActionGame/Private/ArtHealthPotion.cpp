@@ -2,8 +2,9 @@
 
 
 #include "ArtHealthPotion.h"
-#include "Components/SphereComponent.h"
+//#include "Components/SphereComponent.h"
 #include "ArtAttributeComponent.h"
+#include "ArtPlayerState.h"
 
 void AArtHealthPotion::Interact_Implementation(APawn* InstitgatorPawn)
 {
@@ -21,27 +22,24 @@ void AArtHealthPotion::Interact_Implementation(APawn* InstitgatorPawn)
 
 void AArtHealthPotion::AddHealth(UArtAttributeComponent* AttributeComp)
 {
+	AArtPlayerState* PlayerState = Cast<AArtPlayerState>(Cast<APawn>(AttributeComp->GetOwner())->GetPlayerState());
+	int32 CurrentCoinsAmount;
+	if (PlayerState)
+	{
+		PlayerState->GetCoinsAmount(CurrentCoinsAmount);
+	}
+
+	if (CurrentCoinsAmount < UsageCoinCost)
+	{
+		return;
+	}
+
 	if (!AttributeComp->IsFullHealth())
 	{
 		AttributeComp->ApplyHealthChange(this, DeltaHealth);
-		MakeUninteractable();
+		CurrentCoinsAmount -= UsageCoinCost;
+		PlayerState->SetCoinsAmount(CurrentCoinsAmount);
+		PlayerState->OnCoinsValueChanged.Broadcast(CurrentCoinsAmount);
+		HideItem();
 	}
 }
-
-void AArtHealthPotion::MakeUninteractable()
-{
-	StaticMeshComponent->SetVisibility(false);
-	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	InteractCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	///\TODO: fix magic number
-	GetWorldTimerManager().SetTimer(TimerHandle_SetVisibility, this, &AArtHealthPotion::SetVisibility_TimeElapsed, 10.0f);
-}
-
-void AArtHealthPotion::SetVisibility_TimeElapsed()
-{
-	StaticMeshComponent->SetVisibility(true);
-	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	InteractCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-}
-

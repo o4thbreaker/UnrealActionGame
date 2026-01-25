@@ -49,6 +49,11 @@ void AArtCharacter::PostInitializeComponents()
 	AttributeComponent->OnHealthChanged.AddDynamic(this, &AArtCharacter::OnHealthChanged);
 }
 
+FVector AArtCharacter::GetPawnViewLocation() const
+{
+	return CameraComponent->GetComponentLocation();
+}
+
 void AArtCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

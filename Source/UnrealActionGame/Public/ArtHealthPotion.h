@@ -17,16 +17,12 @@ protected:
 	UPROPERTY(BlueprintReadWrite,EditDefaultsOnly, Category = "Health")
 	float DeltaHealth = 50.0f;
 
-	FTimerHandle TimerHandle_SetVisibility;
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Health")
+	int32 UsageCoinCost = 10;
 
 protected:
 	virtual void Interact_Implementation(APawn* InstitgatorPawn) override;
 
 private:
 	void AddHealth(UArtAttributeComponent* AttributeComp);
-
-	/// \TODO: bad naming
-	void MakeUninteractable();
-
-	void SetVisibility_TimeElapsed();
 };

@@ -19,12 +19,20 @@ public:
 	AArtBasePickUpItem();
 
 protected:
-	virtual void Interact_Implementation(APawn* InstitgatorPawn) override;
-
-protected:
 	UPROPERTY(VisibleAnywhere, Category = "Mesh")
 	UStaticMeshComponent* StaticMeshComponent;
 
 	UPROPERTY(VisibleAnywhere, Category = "Collision")
 	USphereComponent* InteractCollisionComponent;
+
+	FTimerHandle TimerHandle_SetVisibility;
+
+protected:
+	virtual void Interact_Implementation(APawn* InstitgatorPawn) override;
+
+	UFUNCTION()
+	void HideItem();
+
+	UFUNCTION()
+	void SetVisibility_TimeElapsed();
 };

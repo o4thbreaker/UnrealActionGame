@@ -8,6 +8,11 @@
 #include "AI/ArtAICharacter.h"
 #include "ArtAttributeComponent.h"
 #include "EngineUtils.h"
+#include "ArtCharacter.h"
+#include "ArtPlayerState.h"
+#include "Kismet/GameplayStatics.h"
+
+static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("art.SpawnBots"), true, TEXT("Enable spawning bots via timer"), ECVF_Cheat);
 
 
 AArtGameModeBase::AArtGameModeBase()
@@ -40,6 +45,12 @@ void AArtGameModeBase::KillAll()
 void AArtGameModeBase::SpawnBotTimerElapsed()
 {
 	int32 NumberOfAliveBots = 0;
+
+	if (!CVarSpawnBots.GetValueOnGameThread())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Bot spawning disabled via cvar 'CVarSpawnBots'"));
+		return;
+	}
 
 	// TActorIterator is just a better (performance-wise) version of GetAllActorsOfClass
 	for (TActorIterator<AArtAICharacter> It(GetWorld()); It; ++It)
@@ -89,4 +100,51 @@ void AArtGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* Query
 	{
 		GetWorld()->SpawnActor<AActor>(MinionClass, Locations[0], FRotator::ZeroRotator);
 	}
+}
+
+void AArtGameModeBase::RespawnPlayerElapsed(AController* Controller)
+{
+	if (ensure(Controller))
+	{
+		Controller->UnPossess();
+
+		RestartPlayer(Controller);
+	}
+}
+
+void AArtGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
+{
+	AArtCharacter* Player = Cast<AArtCharacter>(VictimActor);
+	AArtAICharacter* Enemy = Cast<AArtAICharacter>(VictimActor);
+
+	if (Player)
+	{
+		// local because mp mode will be added
+		FTimerHandle TimerHandle_RespawnDelay;
+
+		FTimerDelegate Delegate;
+		Delegate.BindUFunction(this, "RespawnPlayerElapsed", Player->GetController());
+
+		float RespawnDelay = 2.0f;
+		GetWorldTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, 2.0f, false);
+	}
+
+	if (Enemy)
+	{
+		// gain 3 coins
+		AArtPlayerState* PlayerState = Cast<AArtPlayerState>(Cast<AArtCharacter>(Killer)->GetPlayerState());
+
+		if (PlayerState)
+		{
+			int32 CurrentCoinsAmount;
+			PlayerState->GetCoinsAmount(CurrentCoinsAmount);
+			PlayerState->SetCoinsAmount(CurrentCoinsAmount + 3);
+
+			/// \TODO: fix magic number
+			PlayerState->OnCoinsValueChanged.Broadcast(CurrentCoinsAmount + 3);
+		}
+		
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("OnActorKilled: Victim %s, Killer: %s"), *GetNameSafe(VictimActor), *GetNameSafe(Killer));
 }

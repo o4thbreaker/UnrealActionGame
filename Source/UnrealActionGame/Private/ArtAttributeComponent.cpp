@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ArtAttributeComponent.h"
-
+#include "ArtGameModeBase.h"
 
 UArtAttributeComponent::UArtAttributeComponent()
 {
@@ -34,7 +34,7 @@ float UArtAttributeComponent::GetMaxHealth() const
 
 bool UArtAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
-	if (!GetOwner()->CanBeDamaged())
+	if (!GetOwner()->CanBeDamaged() && Delta < 0.0f)
 	{
 		return false;
 	}
@@ -46,6 +46,16 @@ bool UArtAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float De
 	float ActualDelta = Health - OldHealth;
 	
 	OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
+
+	// died
+	if (ActualDelta < 0.0f && Health == 0.0f)
+	{
+		AArtGameModeBase* GameMode = GetWorld()->GetAuthGameMode<AArtGameModeBase>();
+		if (GameMode)
+		{
+			GameMode->OnActorKilled(GetOwner(), InstigatorActor);
+		}
+	}
 
 	return ActualDelta != 0;
 }

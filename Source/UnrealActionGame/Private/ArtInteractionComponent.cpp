@@ -4,8 +4,12 @@
 #include "ArtGameplayInterface.h"
 #include "DrawDebugHelpers.h"
 
+static TAutoConsoleVariable<bool> CVarDrawDebugInteraction(TEXT("art.InteractionDrawDebug"), true, TEXT("Enable Debug Lines for Interact component "), ECVF_Cheat);
+
 void UArtInteractionComponent::PrimaryInteract()
 {
+	bool isDebugDraw = CVarDrawDebugInteraction.GetValueOnGameThread();
+
 	FCollisionObjectQueryParams ObjectQueryParams;
 	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
 
@@ -42,11 +46,11 @@ void UArtInteractionComponent::PrimaryInteract()
 				break;
 			}
 		}
-
-		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, LineColor, false, 2.0f);
+		if (isDebugDraw)
+			DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, LineColor, false, 2.0f);
 	}
-
-	DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 2.0f, 0, 2.0f);
+	if (isDebugDraw)
+		DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 2.0f, 0, 2.0f);
 }
 
 // Sets default values for this component's properties
