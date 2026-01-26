@@ -12,6 +12,7 @@ class UArtInteractionComponent;
 class UAnimMontage;
 class UArtAttributeComponent;
 class UParticleSystemComponent;
+class UArtActionComponent;
 
 UCLASS()
 class UNREALACTIONGAME_API AArtCharacter : public ACharacter
@@ -30,6 +31,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UArtAttributeComponent* AttributeComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UArtActionComponent* ActionComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UParticleSystemComponent* CastingEffectComponent;
@@ -62,8 +66,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	void MoveForward(float Value);
-
 	void MoveRight(float Value);
+
+	void SprintStart();
+	void SprintStop();
 
 	void PrimaryAttack();
 	void PrimaryAttack_TimeElapsed();

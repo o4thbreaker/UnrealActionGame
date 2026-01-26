@@ -11,6 +11,7 @@
 #include "ArtAttributeComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include <Kismet/GameplayStatics.h>
+#include "ArtActionComponent.h"
 
 AArtCharacter::AArtCharacter()
 {
@@ -27,6 +28,8 @@ AArtCharacter::AArtCharacter()
 	InteractionComponent = CreateDefaultSubobject<UArtInteractionComponent>("InteractionComponent");
 
 	AttributeComponent = CreateDefaultSubobject<UArtAttributeComponent>("AttributeComponent");
+
+	ActionComponent = CreateDefaultSubobject<UArtActionComponent>("ActionComponent");
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
@@ -75,6 +78,9 @@ void AArtCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("BlackholeAttack", IE_Pressed, this, &AArtCharacter::BlackholeAttack);
 	PlayerInputComponent->BindAction("TeleportAttack", IE_Pressed, this, &AArtCharacter::TeleportAttack);
 
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AArtCharacter::SprintStart);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AArtCharacter::SprintStop);
+
 	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &AArtCharacter::PrimaryInteract);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
@@ -106,6 +112,16 @@ void AArtCharacter::MoveRight(float Value)
 	FVector RightVector = FRotationMatrix(ControlRotation).GetScaledAxis(EAxis::Y);
 
 	AddMovementInput(RightVector, Value);
+}
+
+void AArtCharacter::SprintStart()
+{
+	ActionComponent->StartActionByName(this, "Sprint");
+}
+
+void AArtCharacter::SprintStop()
+{
+	ActionComponent->StopActionByName(this, "Sprint");
 }
 
 void AArtCharacter::PrimaryAttack()
