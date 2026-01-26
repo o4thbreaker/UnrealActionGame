@@ -30,8 +30,10 @@ protected:
 
 	UPROPERTY()
 	TArray<UArtAction*> Actions;
+
+	UPROPERTY(EditAnywhere, Category = "Actions")
+	TArray<TSubclassOf<UArtAction>> DefaultActions;
  
-	
 	virtual void BeginPlay() override;
 
 public:	

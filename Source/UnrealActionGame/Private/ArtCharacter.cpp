@@ -15,7 +15,6 @@
 
 AArtCharacter::AArtCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
@@ -34,9 +33,6 @@ AArtCharacter::AArtCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	bUseControllerRotationYaw = false;
-
-	HandSocketName = "Muzzle_01";
-
 }
 
 void AArtCharacter::BeginPlay()
@@ -60,10 +56,8 @@ FVector AArtCharacter::GetPawnViewLocation() const
 void AArtCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
-// Called to bind functionality to input
 void AArtCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -85,7 +79,6 @@ void AArtCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-
 }
 
 void AArtCharacter::HealSelf(float Amount /* = 100 */)
@@ -126,86 +119,17 @@ void AArtCharacter::SprintStop()
 
 void AArtCharacter::PrimaryAttack()
 {
-	PlayAnimMontage(AttackAnimation);
-
-	///\TODO: doesn't work for some reason (maybe because i haven't attached casting effect in constructor?)
-
-	/*UGameplayStatics::SpawnEmitterAttached(CastingEffectComponent, GetMesh(), HandSocketName, 
-		FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);*/
-
-	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AArtCharacter::PrimaryAttack_TimeElapsed, 0.2f);
-}
-
-void AArtCharacter::PrimaryAttack_TimeElapsed()
-{
-	SpawnProjectile(ProjectileClass);
+	ActionComponent->StartActionByName(this, "PrimaryAttack");
 }
 
 void AArtCharacter::BlackholeAttack()
 {
-	PlayAnimMontage(AttackAnimation);
-
-	GetWorldTimerManager().SetTimer(TimerHandle_BlackholeAttack, this, &AArtCharacter::BlackholeAttack_TimeElapsed, 0.2f);
-}
-
-void AArtCharacter::BlackholeAttack_TimeElapsed()
-{
-	SpawnProjectile(BlackholeProjectileClass);
+	ActionComponent->StartActionByName(this, "Blackhole");
 }
 
 void AArtCharacter::TeleportAttack()
 {
-	PlayAnimMontage(AttackAnimation);
-
-	GetWorldTimerManager().SetTimer(TimerHandle_TeleportAttack, this, &AArtCharacter::TeleportAttack_TimeElapsed, 0.2f);
-}
-
-void AArtCharacter::TeleportAttack_TimeElapsed()
-{
-	SpawnProjectile(TeleportProjectileClass);
-}
-
-void AArtCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
-{
-	if (ensureAlways(ClassToSpawn))
-	{
-		FVector HandLocation = GetMesh()->GetSocketLocation(HandSocketName);
-
-		//params for trace
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		SpawnParams.Instigator = this;
-
-		FCollisionShape Shape;
-		Shape.SetSphere(20.0f);
-
-		FCollisionQueryParams QueryParams;
-		QueryParams.AddIgnoredActor(this);
-
-		FCollisionObjectQueryParams ObjectQueryParams;
-		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
-		ObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
-
-		//line trace itself. TODO: fix the magic number
-		FHitResult HitResult;
-		FVector CameraStartVector = CameraComponent->GetComponentLocation();
-		FVector CameraEndVector = CameraComponent->GetComponentLocation() + (CameraComponent->GetComponentRotation().Vector() * 5000.0f);
-
-		bool bTraceResult = GetWorld()->SweepSingleByObjectType(HitResult, CameraStartVector, CameraEndVector,
-			FQuat::Identity, ObjectQueryParams, Shape, QueryParams);
-
-		DrawDebugLine(GetWorld(), HandLocation, CameraEndVector, FColor::Cyan, false, 1.0f, 0U, 2.0f);
-
-		FVector TargetRotationEndVector = bTraceResult ? HitResult.ImpactPoint : CameraEndVector;
-
-		// have no idea what that is i googled it
-		FRotator TargetRotation = FRotationMatrix::MakeFromX(CameraEndVector - HandLocation).Rotator();
-
-		FTransform SpawnTransform = FTransform(TargetRotation, HandLocation);
-
-		GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTransform, SpawnParams);
-	}
+	ActionComponent->StartActionByName(this, "Teleport");
 }
 
 void AArtCharacter::PrimaryInteract()

@@ -35,29 +35,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UArtActionComponent* ActionComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UParticleSystemComponent* CastingEffectComponent;
-
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<AActor> ProjectileClass;
-
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<AActor> BlackholeProjectileClass;
-
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<AActor> TeleportProjectileClass;
-	
-	UPROPERTY(EditAnywhere, Category="Attack")
-	UAnimMontage* AttackAnimation;
-
-	UPROPERTY(VisibleAnywhere, Category = "Attack")
-	FName HandSocketName;
-
-	FTimerHandle TimerHandle_PrimaryAttack;
-	
-	FTimerHandle TimerHandle_BlackholeAttack;
-
-	FTimerHandle TimerHandle_TeleportAttack;
 
 public:
 	AArtCharacter();
@@ -72,15 +49,10 @@ protected:
 	void SprintStop();
 
 	void PrimaryAttack();
-	void PrimaryAttack_TimeElapsed();
 
 	void BlackholeAttack();
-	void BlackholeAttack_TimeElapsed();
 
 	void TeleportAttack();
-	void TeleportAttack_TimeElapsed();
-
-	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
 
 	void PrimaryInteract();
 
@@ -94,7 +66,6 @@ protected:
 public:	
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(Exec)

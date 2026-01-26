@@ -14,6 +14,10 @@ void UArtActionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	for (TSubclassOf<UArtAction> ActionClass : DefaultActions)
+	{
+		AddAction(ActionClass);
+	}
 	
 }
 
