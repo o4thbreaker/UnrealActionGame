@@ -11,11 +11,13 @@
 #include "ArtWorldUserWidget.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "ArtActionComponent.h"
 
 AArtAICharacter::AArtAICharacter()
 {
     PawnSensingComponent = CreateDefaultSubobject<UPawnSensingComponent>("PawnSensingComponent");
     AttributeComponent = CreateDefaultSubobject<UArtAttributeComponent>("AttributeComponent");
+    ActionComponent = CreateDefaultSubobject<UArtActionComponent>("ActionComponent");
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 

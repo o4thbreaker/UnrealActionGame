@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "ArtBaseProjectile.h"
+#include "GameplayTagContainer.h"
 #include "ArtMagicProjectile.generated.h"
 
 class USphereComponent;
@@ -23,6 +24,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Sound")
 	UAudioComponent* FlightSoundComponent;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	FGameplayTag ParryTag;
 
 public:	
 	// Sets default values for this actor's properties

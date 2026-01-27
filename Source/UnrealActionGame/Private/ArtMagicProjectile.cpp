@@ -9,11 +9,11 @@
 #include <Kismet/GameplayStatics.h>
 #include "ArtAttributeComponent.h"
 #include "ArtGameplayFunctionLibrary.h"
+#include "ArtActionComponent.h"
+#include "Gameframework/ProjectileMovementComponent.h"
 
-// Sets default values
 AArtMagicProjectile::AArtMagicProjectile()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	FlightSoundComponent = CreateDefaultSubobject<UAudioComponent>("FlightSoundComponent");
@@ -22,12 +22,10 @@ AArtMagicProjectile::AArtMagicProjectile()
 	// EVERYTHING ELSE AS IN BASE CLASS CONSTRUCTOR
 }
 
-// Called when the game starts or when spawned
 void AArtMagicProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	
-
 	/// \TODO: Figure out how to make a continious sound of flight
 	//FlightSoundComponent->Play();
 }
@@ -52,14 +50,14 @@ void AArtMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponen
 {
 	if (OtherActor && OtherActor != GetInstigator())
 	{
-		//UE_LOG(LogTemp, Log, TEXT("Actor %s is overlaping with %s"), *GetInstigator()->GetName(), *OtherActor->GetName());
-		/*UArtAttributeComponent* AttributeComponent = Cast<UArtAttributeComponent>(OtherActor->GetComponentByClass(UArtAttributeComponent::StaticClass()));
-		if (AttributeComponent)
-		{
-			AttributeComponent->ApplyHealthChange(GetInstigator(), -DamageAmount);
+		UArtActionComponent* ActionComponent = Cast<UArtActionComponent>(OtherActor->GetComponentByClass(UArtActionComponent::StaticClass()));
 
-			DestroyProjectile();
-		}*/
+		if (ActionComponent && ActionComponent->ActiveGameplayTags.HasTag(ParryTag))
+		{
+			MovementComponent->Velocity = -MovementComponent->Velocity;
+			SetInstigator(Cast<APawn>(OtherActor));
+			return;
+		}
 
 		if (UArtGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
 		{
@@ -68,7 +66,6 @@ void AArtMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponen
 	}
 }
 
-// Called every frame
 void AArtMagicProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

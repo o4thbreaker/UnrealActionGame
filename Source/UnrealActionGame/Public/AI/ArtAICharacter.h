@@ -10,6 +10,7 @@ class UPawnSensingComponent;
 class UArtAttributeComponent;
 class UUserWidget;
 class UArtWorldUserWidget;
+class UArtActionComponent;
 
 UCLASS()
 class UNREALACTIONGAME_API AArtAICharacter : public ACharacter
@@ -39,6 +40,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UArtAttributeComponent* AttributeComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UArtActionComponent* ActionComponent;
 
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, UArtAttributeComponent* OwningComp, float NewHealth, float Delta);

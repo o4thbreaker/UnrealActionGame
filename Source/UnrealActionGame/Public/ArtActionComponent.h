@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GameplayTagContainer.h"
 #include "ArtActionComponent.generated.h"
 
 class UArtAction;
@@ -16,6 +17,9 @@ class UNREALACTIONGAME_API UArtActionComponent : public UActorComponent
 public:	
 
 	UArtActionComponent();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags")
+	FGameplayTagContainer ActiveGameplayTags;
 
 	UFUNCTION(BlueprintCallable, Category = "Actions")
 	void AddAction(TSubclassOf<UArtAction> ActionClass);
