@@ -8,9 +8,9 @@ AArtPlayerState::AArtPlayerState()
 	CurrentCoinsAmount = 0;
 }
 
-void AArtPlayerState::GetCoinsAmount(int32& CoinsAmount)
+int32 AArtPlayerState::GetCoinsAmount()
 {
-	CoinsAmount = CurrentCoinsAmount;
+	return CurrentCoinsAmount;
 }
 
 void AArtPlayerState::SetCoinsAmount(int32 NewAmount)

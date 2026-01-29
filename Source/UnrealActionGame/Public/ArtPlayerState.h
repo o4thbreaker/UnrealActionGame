@@ -29,7 +29,7 @@ public:
 	AArtPlayerState();
 
 	UFUNCTION(BlueprintCallable, Category = "Credits")
-	void GetCoinsAmount(int32& CoinsAmount);
+	int32 GetCoinsAmount();
 
 	UFUNCTION(BlueprintCallable, Category = "Credits")
 	void SetCoinsAmount(int32 NewAmount);

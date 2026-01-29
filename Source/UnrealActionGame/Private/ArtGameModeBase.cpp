@@ -13,18 +13,22 @@
 #include "Kismet/GameplayStatics.h"
 
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("art.SpawnBots"), true, TEXT("Enable spawning bots via timer"), ECVF_Cheat);
+static TAutoConsoleVariable<bool> CVarSpawnItems(TEXT("art.SpawnItems"), true, TEXT("Enable spawning pick up items via timer"), ECVF_Cheat);
 
+/// \TODO: add EQS to spawn random items
 
 AArtGameModeBase::AArtGameModeBase()
 {
-	SpawnTimerInterval = 2.0f;
+	SpawnBotsTimerInterval = 2.0f;
+	SpawnPickupItemsTimerInterval = 60.0f;
 }
 
 void AArtGameModeBase::StartPlay()
 {
 	Super::StartPlay();
 
-	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &AArtGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval, true);
+	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &AArtGameModeBase::SpawnBotTimerElapsed, SpawnBotsTimerInterval, true);
+	GetWorldTimerManager().SetTimer(TimerHandle_SpawnPickUpItems, this, &AArtGameModeBase::SpawnPickUpItemsTimerElapsed, SpawnPickupItemsTimerInterval, true);
 }
 
 void AArtGameModeBase::KillAll()
@@ -81,12 +85,27 @@ void AArtGameModeBase::SpawnBotTimerElapsed()
 	UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, SpawnBotQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
 	if (ensure(QueryInstance))
 	{
-		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &AArtGameModeBase::OnQueryCompleted);
+		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &AArtGameModeBase::OnSpawnBotQueryCompleted);
 
 	}
 }
 
-void AArtGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
+void AArtGameModeBase::SpawnPickUpItemsTimerElapsed()
+{
+	if (!CVarSpawnItems.GetValueOnGameThread())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Items spawning disabled via cvar 'CVarSpawnItems'"));
+		return;
+	}
+
+	UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, SpawnPickupItemsQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
+	if (ensure(QueryInstance))
+	{
+		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &AArtGameModeBase::OnSpawnItemsQueryCompleted);
+	}
+}
+
+void AArtGameModeBase::OnSpawnBotQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
 {
 	if (QueryStatus != EEnvQueryStatus::Success)
 	{
@@ -99,6 +118,22 @@ void AArtGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* Query
 	if (Locations.Num() > 0)
 	{
 		GetWorld()->SpawnActor<AActor>(MinionClass, Locations[0], FRotator::ZeroRotator);
+	}
+}
+
+void AArtGameModeBase::OnSpawnItemsQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
+{
+	if (QueryStatus != EEnvQueryStatus::Success)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Spawn items EQS Query failed"));
+		return;
+	}
+
+	TArray<FVector> Locations = QueryInstance->GetResultsAsLocations();
+
+	if (Locations.Num() > 0)
+	{
+		GetWorld()->SpawnActor<AActor>(PickUpItemClass, Locations[0], FRotator::ZeroRotator);
 	}
 }
 
@@ -136,14 +171,11 @@ void AArtGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
 
 		if (PlayerState)
 		{
-			int32 CurrentCoinsAmount;
-			PlayerState->GetCoinsAmount(CurrentCoinsAmount);
-			PlayerState->SetCoinsAmount(CurrentCoinsAmount + 3);
+			int32 RewardAmount = 3;
+			PlayerState->SetCoinsAmount(PlayerState->GetCoinsAmount() + RewardAmount);
 
-			/// \TODO: fix magic number
-			PlayerState->OnCoinsValueChanged.Broadcast(CurrentCoinsAmount + 3);
+			PlayerState->OnCoinsValueChanged.Broadcast(PlayerState->GetCoinsAmount());
 		}
-		
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("OnActorKilled: Victim %s, Killer: %s"), *GetNameSafe(VictimActor), *GetNameSafe(Killer));

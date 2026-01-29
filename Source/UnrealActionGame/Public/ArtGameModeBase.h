@@ -20,6 +20,12 @@ class UNREALACTIONGAME_API AArtGameModeBase : public AGameModeBase
 
 protected:
 
+	UPROPERTY(EditDefaultsOnly, Category = "PickUp")
+	TSubclassOf<AActor> PickUpItemClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "PickUp")
+	UEnvQuery* SpawnPickupItemsQuery;
+
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	TSubclassOf<AActor> MinionClass;
 
@@ -30,15 +36,25 @@ protected:
 	UCurveFloat* DifficultyCurve;
 
 	FTimerHandle TimerHandle_SpawnBots;
+	FTimerHandle TimerHandle_SpawnPickUpItems;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	float SpawnTimerInterval;
+	float SpawnBotsTimerInterval;
+
+	UPROPERTY(EditDefaultsOnly, Category = "PickUp")
+	float SpawnPickupItemsTimerInterval;
 
 	UFUNCTION()
 	void SpawnBotTimerElapsed();
 
 	UFUNCTION()
-	void OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+	void SpawnPickUpItemsTimerElapsed();
+
+	UFUNCTION()
+	void OnSpawnBotQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+
+	UFUNCTION()
+	void OnSpawnItemsQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
 
 	UFUNCTION()
 	void RespawnPlayerElapsed(AController* Controller);

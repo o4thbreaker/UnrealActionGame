@@ -23,13 +23,8 @@ void AArtHealthPotion::Interact_Implementation(APawn* InstitgatorPawn)
 void AArtHealthPotion::AddHealth(UArtAttributeComponent* AttributeComp)
 {
 	AArtPlayerState* PlayerState = Cast<AArtPlayerState>(Cast<APawn>(AttributeComp->GetOwner())->GetPlayerState());
-	int32 CurrentCoinsAmount;
-	if (PlayerState)
-	{
-		PlayerState->GetCoinsAmount(CurrentCoinsAmount);
-	}
-
-	if (CurrentCoinsAmount < UsageCoinCost)
+	
+	if (PlayerState->GetCoinsAmount() < UsageCoinCost)
 	{
 		return;
 	}
@@ -37,9 +32,8 @@ void AArtHealthPotion::AddHealth(UArtAttributeComponent* AttributeComp)
 	if (!AttributeComp->IsFullHealth())
 	{
 		AttributeComp->ApplyHealthChange(this, DeltaHealth);
-		CurrentCoinsAmount -= UsageCoinCost;
-		PlayerState->SetCoinsAmount(CurrentCoinsAmount);
-		PlayerState->OnCoinsValueChanged.Broadcast(CurrentCoinsAmount);
+		PlayerState->SetCoinsAmount(PlayerState->GetCoinsAmount() - UsageCoinCost);
+		PlayerState->OnCoinsValueChanged.Broadcast(PlayerState->GetCoinsAmount());
 		HideItem();
 	}
 }

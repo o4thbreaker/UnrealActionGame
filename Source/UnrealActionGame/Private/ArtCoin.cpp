@@ -20,10 +20,7 @@ void AArtCoin::Interact_Implementation(APawn* InstitgatorPawn)
 
 void AArtCoin::GainCoin(AArtPlayerState* PlayerState)
 {
-	int32 CoinsAmount;
-	PlayerState->GetCoinsAmount(CoinsAmount);
-	CoinsAmount++;
-	PlayerState->SetCoinsAmount(CoinsAmount);
-	PlayerState->OnCoinsValueChanged.Broadcast(CoinsAmount);
+	PlayerState->SetCoinsAmount(PlayerState->GetCoinsAmount() + 1);
+	PlayerState->OnCoinsValueChanged.Broadcast(PlayerState->GetCoinsAmount());
 	HideItem();
 }
