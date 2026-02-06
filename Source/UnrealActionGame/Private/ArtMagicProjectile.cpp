@@ -10,7 +10,7 @@
 #include "ArtAttributeComponent.h"
 #include "ArtGameplayFunctionLibrary.h"
 #include "ArtActionComponent.h"
-#include "Gameframework/ProjectileMovementComponent.h"
+#include "ArtActionEffect.h"
 
 AArtMagicProjectile::AArtMagicProjectile()
 {
@@ -62,6 +62,11 @@ void AArtMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponen
 		if (UArtGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
 		{
 			DestroyProjectile();
+
+			if (ActionComponent)
+			{
+				ActionComponent->AddAction(GetInstigator(), BurningActionClass);
+			}
 		}
 	}
 }

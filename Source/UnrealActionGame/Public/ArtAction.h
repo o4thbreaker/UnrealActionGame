@@ -37,6 +37,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	bool GetIsRunning() const;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Action")
+	bool IsAutoStart;
+
 protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Action")

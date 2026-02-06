@@ -12,6 +12,7 @@ class USphereComponent;
 class UProjectileMovementComponent; 
 class UParticleSystem;
 class UAudioComponent;
+class UArtActionEffect;
 
 UCLASS()
 class UNREALACTIONGAME_API AArtMagicProjectile : public AArtBaseProjectile
@@ -27,6 +28,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	FGameplayTag ParryTag;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	TSubclassOf<UArtActionEffect> BurningActionClass;
 
 public:	
 	// Sets default values for this actor's properties

@@ -20,6 +20,9 @@ class UNREALACTIONGAME_API AArtGameModeBase : public AGameModeBase
 
 protected:
 
+	/// <summary>
+	///  \TODO: refactor to make it an array of random pickups
+	/// </summary>
 	UPROPERTY(EditDefaultsOnly, Category = "PickUp")
 	TSubclassOf<AActor> PickUpItemClass;
 

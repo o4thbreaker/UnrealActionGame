@@ -8,7 +8,7 @@ AArtPlayerState::AArtPlayerState()
 	CurrentCoinsAmount = 0;
 }
 
-int32 AArtPlayerState::GetCoinsAmount()
+int32 AArtPlayerState::GetCoinsAmount() const
 {
 	return CurrentCoinsAmount;
 }

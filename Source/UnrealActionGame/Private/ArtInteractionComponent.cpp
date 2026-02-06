@@ -3,15 +3,44 @@
 #include "ArtInteractionComponent.h"
 #include "ArtGameplayInterface.h"
 #include "DrawDebugHelpers.h"
+#include "ArtWorldUserWidget.h"
 
-static TAutoConsoleVariable<bool> CVarDrawDebugInteraction(TEXT("art.InteractionDrawDebug"), true, TEXT("Enable Debug Lines for Interact component "), ECVF_Cheat);
+static TAutoConsoleVariable<bool> CVarDrawDebugInteraction(TEXT("art.InteractionDrawDebug"), false, TEXT("Enable Debug Lines for Interact component "), ECVF_Cheat);
+
+UArtInteractionComponent::UArtInteractionComponent()
+{
+	PrimaryComponentTick.bCanEverTick = true;
+
+	TraceRadius = 30.0f;
+	TraceDistance = 500.0f;
+	CollisionChannel = ECC_WorldDynamic;
+}
 
 void UArtInteractionComponent::PrimaryInteract()
+{
+	if (FocusedActor == nullptr)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, "No focus actor to interact");
+		return;
+	}
+
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+
+	IArtGameplayInterface::Execute_Interact(FocusedActor, OwnerPawn);
+}
+
+void UArtInteractionComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	
+}
+
+void UArtInteractionComponent::FindBestInteractable()
 {
 	bool isDebugDraw = CVarDrawDebugInteraction.GetValueOnGameThread();
 
 	FCollisionObjectQueryParams ObjectQueryParams;
-	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+	ObjectQueryParams.AddObjectTypesToQuery(CollisionChannel);
 
 	AActor* Owner = GetOwner();
 
@@ -20,18 +49,19 @@ void UArtInteractionComponent::PrimaryInteract()
 
 	Owner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
 
-	FVector End = EyeLocation + (EyeRotation.Vector() * 1000);
+	FVector End = EyeLocation + (EyeRotation.Vector() * TraceDistance);
 
 	TArray<FHitResult> Hits;
 
-	float Radius = 30.0f;
-
 	FCollisionShape Shape;
-	Shape.SetSphere(Radius);
+	Shape.SetSphere(TraceRadius);
 
 	bool bBlockingHit = GetWorld()->SweepMultiByObjectType(Hits, EyeLocation, End, FQuat::Identity, ObjectQueryParams, Shape);
 
 	FColor LineColor = bBlockingHit ? FColor::Green : FColor::Red;
+
+	// clear ref before trying to find
+	FocusedActor = nullptr;
 
 	for (FHitResult Hit : Hits)
 	{
@@ -40,45 +70,48 @@ void UArtInteractionComponent::PrimaryInteract()
 		{
 			if (HitActor->Implements<UArtGameplayInterface>())
 			{
-				APawn* OwnerPawn = Cast<APawn>(Owner);
-
-				IArtGameplayInterface::Execute_Interact(HitActor, OwnerPawn);
+				FocusedActor = HitActor;
 				break;
 			}
 		}
 		if (isDebugDraw)
-			DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, LineColor, false, 2.0f);
+			DrawDebugSphere(GetWorld(), Hit.ImpactPoint, TraceRadius, 32, LineColor, false, 2.0f);
 	}
+
+	if (FocusedActor)
+	{
+		if (DefaultWidgetInstance == nullptr && ensure(DefaultWidgetClass))
+		{
+			DefaultWidgetInstance = CreateWidget<UArtWorldUserWidget>(GetWorld(), DefaultWidgetClass);
+		}
+
+		if (DefaultWidgetInstance)
+		{
+			DefaultWidgetInstance->AttachedActor = FocusedActor;
+
+			if (!DefaultWidgetInstance->IsInViewport())
+			{
+				DefaultWidgetInstance->AddToViewport();
+			}
+		}
+	}
+	else
+	{
+		if (DefaultWidgetInstance)
+		{
+			DefaultWidgetInstance->RemoveFromParent();
+		}
+	}
+
+
 	if (isDebugDraw)
 		DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 2.0f, 0, 2.0f);
 }
 
-// Sets default values for this component's properties
-UArtInteractionComponent::UArtInteractionComponent()
-{
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
-}
-
-
-// Called when the game starts
-void UArtInteractionComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-	
-}
-
-
-// Called every frame
 void UArtInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	FindBestInteractable();
 }
 

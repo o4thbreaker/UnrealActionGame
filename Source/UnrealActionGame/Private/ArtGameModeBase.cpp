@@ -101,6 +101,7 @@ void AArtGameModeBase::SpawnPickUpItemsTimerElapsed()
 	UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, SpawnPickupItemsQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
 	if (ensure(QueryInstance))
 	{
+		/// \TODO: add pathexist in eqs bp and preferable make querier as a player start (not as game mode as now)
 		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &AArtGameModeBase::OnSpawnItemsQueryCompleted);
 	}
 }
@@ -171,6 +172,7 @@ void AArtGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
 
 		if (PlayerState)
 		{
+			/// \TODO: transfer to tweakable variable
 			int32 RewardAmount = 3;
 			PlayerState->SetCoinsAmount(PlayerState->GetCoinsAmount() + RewardAmount);
 

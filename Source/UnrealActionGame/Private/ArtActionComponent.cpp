@@ -16,7 +16,7 @@ void UArtActionComponent::BeginPlay()
 
 	for (TSubclassOf<UArtAction> ActionClass : DefaultActions)
 	{
-		AddAction(ActionClass);
+		AddAction(GetOwner(), ActionClass);
 	}
 	
 }
@@ -27,7 +27,7 @@ void UArtActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 }
 
-void UArtActionComponent::AddAction(TSubclassOf<UArtAction> ActionClass)
+void UArtActionComponent::AddAction(AActor* Instigator, TSubclassOf<UArtAction> ActionClass)
 {
 	if (!ensure(ActionClass))
 	{
@@ -39,7 +39,24 @@ void UArtActionComponent::AddAction(TSubclassOf<UArtAction> ActionClass)
 	if (ensure(NewAction))
 	{
 		Actions.Add(NewAction);
+
+		if (NewAction->IsAutoStart && ensure(NewAction->CanStart(Instigator)))
+		{
+			NewAction->StartAction(Instigator);
+		}
 	}
+}
+
+void UArtActionComponent::RemoveAction(UArtAction* ActionToRemove)
+{
+
+	/// \BUG: crashes when enemy shoots. no burning effect?
+	if (!ensure(ActionToRemove && !ActionToRemove->GetIsRunning()))
+	{
+		return;
+	}
+
+	Actions.Remove(ActionToRemove);
 }
 
 bool UArtActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
