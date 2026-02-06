@@ -7,6 +7,7 @@
 #include "ArtAttributeComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChanged, AActor*, Instigator, UArtAttributeComponent*, OwningComponent, float, NewHealth, float, Delta);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnRageChanged, UArtAttributeComponent*, OwningComponent, float, NewRage, float, Delta);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UNREALACTIONGAME_API UArtAttributeComponent : public UActorComponent
@@ -25,6 +26,15 @@ public:
 
 protected:
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+	float Rage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+	float MaxRage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+	float RagePercentage;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Attributes")
 	float Health;
 
@@ -40,12 +50,25 @@ public:
 	bool Kill(AActor* InstigatorActor);
 
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	void GainRage(float DamageIntake);
+
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	void LoseRage(float Amount);
+
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	float GetRage() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	float GetHealth() const;
+
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	float GetMaxHealth() const;
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnHealthChanged OnHealthChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnRageChanged OnRageChanged;
 
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	bool ApplyHealthChange(AActor* InstigatorActor, float Delta);

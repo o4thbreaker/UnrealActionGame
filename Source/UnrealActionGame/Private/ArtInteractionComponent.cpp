@@ -103,7 +103,6 @@ void UArtInteractionComponent::FindBestInteractable()
 		}
 	}
 
-
 	if (isDebugDraw)
 		DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 2.0f, 0, 2.0f);
 }

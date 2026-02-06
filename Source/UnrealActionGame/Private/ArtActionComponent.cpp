@@ -49,7 +49,6 @@ void UArtActionComponent::AddAction(AActor* Instigator, TSubclassOf<UArtAction> 
 
 void UArtActionComponent::RemoveAction(UArtAction* ActionToRemove)
 {
-
 	/// \BUG: crashes when enemy shoots. no burning effect?
 	if (!ensure(ActionToRemove && !ActionToRemove->GetIsRunning()))
 	{
