@@ -34,18 +34,12 @@ void UArtAttributeComponent::GainRage(float DamageIntake)
 
 	Rage = FMath::Clamp(Rage + DamagePercent, 0.0f, MaxRage);
 	OnRageChanged.Broadcast(this, Rage, Rage + DamagePercent);
-
-	FString RageMsg = FString::Printf(TEXT("Gained rage. Current rage: %f"), Rage);
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Orange, RageMsg);
 }
 
 void UArtAttributeComponent::LoseRage(float Amount)
 {
 	Rage = FMath::Clamp(Rage - Amount, 0.0f, MaxRage);
 	OnRageChanged.Broadcast(this, Rage, Amount);
-
-	FString RageMsg = FString::Printf(TEXT("Lost rage. Current rage: %f"), Rage);
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Orange, RageMsg);
 }
 
 float UArtAttributeComponent::GetRage() const

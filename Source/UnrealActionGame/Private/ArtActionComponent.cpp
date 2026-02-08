@@ -95,3 +95,16 @@ bool UArtActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 	return false;
 }
 
+bool UArtActionComponent::IsInActions(TSubclassOf<UArtAction> ActionClassToCheck) const
+{
+	for (UArtAction* Action : Actions)
+	{
+		if (Action->GetClass() == ActionClassToCheck)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
