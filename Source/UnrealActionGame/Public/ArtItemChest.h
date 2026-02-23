@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -32,6 +32,13 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	UStaticMeshComponent* LidMesh;
+
+	UPROPERTY(ReplicatedUsing="OnRep_LidOpened", BlueprintReadOnly) // RepNotify
+	bool IsLidOpened;
+
+	// always bind to UFUNCTION things that UE uses behind the scenes (e.g. ReplicatedUsing)
+	UFUNCTION()
+	void OnRep_LidOpened();
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

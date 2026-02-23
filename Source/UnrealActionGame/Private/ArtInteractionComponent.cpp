@@ -16,9 +16,20 @@ UArtInteractionComponent::UArtInteractionComponent()
 	CollisionChannel = ECC_WorldDynamic;
 }
 
+void UArtInteractionComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+}
+
 void UArtInteractionComponent::PrimaryInteract()
 {
-	if (FocusedActor == nullptr)
+	ServerInteract(FocusedActor);
+}
+
+void UArtInteractionComponent::ServerInteract_Implementation(AActor* InFocus)
+{
+	if (InFocus == nullptr)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, "No focus actor to interact");
 		return;
@@ -27,12 +38,6 @@ void UArtInteractionComponent::PrimaryInteract()
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 
 	IArtGameplayInterface::Execute_Interact(FocusedActor, OwnerPawn);
-}
-
-void UArtInteractionComponent::BeginPlay()
-{
-	Super::BeginPlay();
-	
 }
 
 void UArtInteractionComponent::FindBestInteractable()
@@ -111,6 +116,11 @@ void UArtInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FindBestInteractable();
+	APawn* MyPawn = Cast<APawn>(GetOwner());
+
+	if (MyPawn->IsLocallyControlled())
+	{
+		FindBestInteractable();
+	}
 }
 
