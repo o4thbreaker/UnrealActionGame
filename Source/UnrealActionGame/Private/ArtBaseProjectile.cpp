@@ -31,6 +31,8 @@ AArtBaseProjectile::AArtBaseProjectile()
 	ImpactSoundComponent->bAutoActivate = false;
 
 	//ExplosionParticleEmmiter = CreateDefaultSubobject<UParticleSystem>("ExplostionParticle");
+
+	SetReplicates(true);
 }
 
 void AArtBaseProjectile::BeginPlay()

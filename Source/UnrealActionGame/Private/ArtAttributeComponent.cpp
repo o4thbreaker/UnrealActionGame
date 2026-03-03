@@ -2,6 +2,7 @@
 
 #include "ArtAttributeComponent.h"
 #include "ArtGameModeBase.h"
+#include "Net/UnrealNetwork.h"
 
 UArtAttributeComponent::UArtAttributeComponent()
 {
@@ -16,6 +17,15 @@ UArtAttributeComponent::UArtAttributeComponent()
 	Rage = 0.0f;
 
 	RagePercentage = 10.0f;
+
+
+	// need to set this instead of SetReplicated() because of component
+	SetIsReplicatedByDefault(true);
+}
+
+void UArtAttributeComponent::MulticastHealthChanged_Implementation(AActor* InstigatorActor, float NewHealth, float Delta)
+{
+	OnHealthChanged.Broadcast(InstigatorActor, this, NewHealth, Delta);
 }
 
 void UArtAttributeComponent::BeginPlay()
@@ -70,8 +80,13 @@ bool UArtAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float De
 
 	float ActualDelta = Health - OldHealth;
 	
-	OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
+	//OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
 
+	if (ActualDelta != 0.0f)
+	{
+		MulticastHealthChanged(InstigatorActor, Health, ActualDelta);
+	}
+	
 	if (ActualDelta < 0.0f)
 	{
 		GainRage(ActualDelta);
@@ -121,5 +136,14 @@ bool UArtAttributeComponent::IsActorAlive(AActor* Actor)
 	}
 
 	return false;
+}
+
+// we dont need to include this in out h file (i think because .generated has this function)
+void UArtAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UArtAttributeComponent, Health);
+	DOREPLIFETIME(UArtAttributeComponent, Health);
 }
 

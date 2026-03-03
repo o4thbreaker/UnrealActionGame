@@ -22,7 +22,7 @@ AArtItemChest::AArtItemChest()
 	// it will update the variables when they will be changed (only interesting ones ofc)
 	SetReplicates(true);
 }
-
+ 
 
 void AArtItemChest::Interact_Implementation(APawn* InstigatorPawn)
 {
@@ -53,9 +53,9 @@ void AArtItemChest::OnRep_LidOpened()
 	LidMesh->SetRelativeRotation(FRotator(CurrentPitch, 0, 0));
 }
 
-void AArtItemChest::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeTimeProps) const
+void AArtItemChest::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	Super::GetLifetimeReplicatedProps(OutLifeTimeProps);
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	// whenever IsLidOpened is changed, send this to all clients
 	DOREPLIFETIME(AArtItemChest, IsLidOpened);

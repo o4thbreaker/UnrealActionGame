@@ -12,6 +12,9 @@ AArtBasePickUpItem::AArtBasePickUpItem()
 	InteractCollisionComponent = CreateDefaultSubobject<USphereComponent>("InteractSphereCollisionComponent");
 
 	InteractCollisionComponent->SetupAttachment(StaticMeshComponent);
+
+	// if server spawns this item every client will spawn a copy
+	SetReplicates(true);
 }
 
 void AArtBasePickUpItem::Interact_Implementation(APawn* InstitgatorPawn)

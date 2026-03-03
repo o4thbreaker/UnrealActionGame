@@ -9,6 +9,8 @@ UArtActionComponent::UArtActionComponent()
 	
 	PrimaryComponentTick.bCanEverTick = true;
 
+	SetIsReplicatedByDefault(true);
+
 }
 void UArtActionComponent::BeginPlay()
 {
@@ -71,6 +73,12 @@ bool UArtActionComponent::StartActionByName(AActor* Instigator, FName ActionName
 				continue;
 			}
 
+			// is client
+			if (!GetOwner()->HasAuthority())
+			{
+				ServerStartAction(Instigator, ActionName);
+			}
+		
 			Action->StartAction(Instigator);
 			return true;
 		}
@@ -106,5 +114,11 @@ bool UArtActionComponent::IsInActions(TSubclassOf<UArtAction> ActionClassToCheck
 	}
 
 	return false;
+}
+
+void UArtActionComponent::ServerStartAction_Implementation(AActor* Instigator, FName ActionName)
+{
+	StartActionByName(Instigator, ActionName);
+
 }
 
