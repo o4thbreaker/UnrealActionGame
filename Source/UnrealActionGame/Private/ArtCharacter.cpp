@@ -126,6 +126,7 @@ void AArtCharacter::PrimaryAttack()
 
 void AArtCharacter::BlackholeAttack()
 {
+	/// \TODO: probably not the best design idea to put this logic and not in Blackhole_Action?
 	if (AttributeComponent->GetRage() >= BlackholeRageCost)
 	{
 		ActionComponent->StartActionByName(this, "Blackhole");
@@ -156,5 +157,7 @@ void AArtCharacter::OnHealthChanged(AActor* InstigatorActor, UArtAttributeCompon
 	{
 		APlayerController* PController = Cast<APlayerController>(GetController());
 		DisableInput(PController);
+
+		SetLifeSpan(4.0f);
 	}
 }

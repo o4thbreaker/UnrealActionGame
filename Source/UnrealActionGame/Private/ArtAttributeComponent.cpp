@@ -75,30 +75,31 @@ bool UArtAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float De
 	}
 
 	float OldHealth = Health;
+	float NewHealth = FMath::Clamp(Health + Delta, 0.0f, MaxHealth);
+	float ActualDelta = NewHealth - OldHealth;
 
-	Health = FMath::Clamp(Health + Delta, 0.0f, MaxHealth);
-
-	float ActualDelta = Health - OldHealth;
-	
-	//OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
-
-	if (ActualDelta != 0.0f)
+	if (GetOwner()->HasAuthority())
 	{
-		MulticastHealthChanged(InstigatorActor, Health, ActualDelta);
-	}
-	
-	if (ActualDelta < 0.0f)
-	{
-		GainRage(ActualDelta);
-	}
+		Health = NewHealth;
 
-	// died
-	if (ActualDelta < 0.0f && Health == 0.0f)
-	{
-		AArtGameModeBase* GameMode = GetWorld()->GetAuthGameMode<AArtGameModeBase>();
-		if (GameMode)
+		if (ActualDelta != 0.0f)
 		{
-			GameMode->OnActorKilled(GetOwner(), InstigatorActor);
+			MulticastHealthChanged(InstigatorActor, Health, ActualDelta);
+		}
+
+		if (ActualDelta < 0.0f)
+		{
+			GainRage(ActualDelta);
+		}
+
+		// died
+		if (ActualDelta < 0.0f && Health == 0.0f)
+		{
+			AArtGameModeBase* GameMode = GetWorld()->GetAuthGameMode<AArtGameModeBase>();
+			if (GameMode)
+			{
+				GameMode->OnActorKilled(GetOwner(), InstigatorActor);
+			}
 		}
 	}
 
@@ -144,6 +145,6 @@ void UArtAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UArtAttributeComponent, Health);
-	DOREPLIFETIME(UArtAttributeComponent, Health);
+	DOREPLIFETIME(UArtAttributeComponent, MaxHealth);
 }
 

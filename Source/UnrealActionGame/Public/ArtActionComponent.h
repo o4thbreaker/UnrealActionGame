@@ -41,7 +41,10 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerStartAction(AActor* Instigator, FName ActionName);
 
-	UPROPERTY()
+	UFUNCTION(Server, Reliable)
+	void ServerStopAction(AActor* Instigator, FName ActionName);
+
+	UPROPERTY(Replicated)
 	TArray<UArtAction*> Actions;
 
 	UPROPERTY(EditAnywhere, Category = "Actions")
@@ -50,6 +53,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
+	bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 

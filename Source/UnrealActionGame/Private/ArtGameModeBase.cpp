@@ -168,7 +168,10 @@ void AArtGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
 	if (Enemy)
 	{
 		// gain 3 coins
+		
+		/// \BUG: when KillAll called exception will be thrown
 		AArtPlayerState* PlayerState = Cast<AArtPlayerState>(Cast<AArtCharacter>(Killer)->GetPlayerState());
+
 
 		if (PlayerState)
 		{
@@ -178,6 +181,7 @@ void AArtGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
 
 			PlayerState->OnCoinsValueChanged.Broadcast(PlayerState->GetCoinsAmount());
 		}
+		
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("OnActorKilled: Victim %s, Killer: %s"), *GetNameSafe(VictimActor), *GetNameSafe(Killer));

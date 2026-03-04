@@ -9,7 +9,7 @@ void AArtActionPickUp::Interact_Implementation(APawn* InstitgatorPawn)
 {
 	if (ensure(InstitgatorPawn))
 	{
-		UArtActionComponent* ActionComponent = InstitgatorPawn->FindComponentByClass<UArtActionComponent>();
+		UArtActionComponent* ActionComponent = Cast<UArtActionComponent>(InstitgatorPawn->GetComponentByClass(UArtActionComponent::StaticClass()));
 		if (ActionComponent)
 		{
 			GainAction(InstitgatorPawn, ActionComponent);

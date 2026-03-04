@@ -3,6 +3,9 @@
 
 #include "ArtActionComponent.h"
 #include "ArtAction.h"
+#include "../UnrealActionGame.h"
+#include "Net/UnrealNetwork.h"
+#include "Engine/ActorChannel.h"
 
 UArtActionComponent::UArtActionComponent()
 {
@@ -12,20 +15,40 @@ UArtActionComponent::UArtActionComponent()
 	SetIsReplicatedByDefault(true);
 
 }
+
 void UArtActionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	for (TSubclassOf<UArtAction> ActionClass : DefaultActions)
+	// is server?
+	if (GetOwner()->HasAuthority())
 	{
-		AddAction(GetOwner(), ActionClass);
+		// we want this server only because we want to make array once and replication system will make a copy
+		for (TSubclassOf<UArtAction> ActionClass : DefaultActions)
+		{
+			AddAction(GetOwner(), ActionClass);
+		}
 	}
-	
 }
+
 
 void UArtActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+
+	for (UArtAction* Action : Actions)
+	{
+		FColor TextColor = Action->GetIsRunning() ? FColor::Blue : FColor::White;
+
+		FString ActionMsg = FString::Printf(TEXT("[%s] Action %s : IsRunning: %s : Outer: %s"),
+			*GetNameSafe(GetOwner()),
+			*GetNameSafe(Action),
+			Action->GetIsRunning() ? TEXT("true") : TEXT("false"),
+			*GetNameSafe(Action->GetOuter()));
+
+		LogOnScreen(this, ActionMsg, TextColor, 0.0f);
+	}
 
 }
 
@@ -36,10 +59,20 @@ void UArtActionComponent::AddAction(AActor* Instigator, TSubclassOf<UArtAction> 
 		return;
 	}
 
-	UArtAction* NewAction = NewObject<UArtAction>(this, ActionClass);
+	// skip for clients
+	if (!GetOwner()->HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Client attempting to AddAction. [Class: %s]"), *GetNameSafe(ActionClass));
+		return;
+	}
+
+	UArtAction* NewAction = NewObject<UArtAction>(GetOwner(), ActionClass);
 
 	if (ensure(NewAction))
 	{
+
+		NewAction->Initialize(this);
+
 		Actions.Add(NewAction);
 
 		if (NewAction->IsAutoStart && ensure(NewAction->CanStart(Instigator)))
@@ -51,7 +84,7 @@ void UArtActionComponent::AddAction(AActor* Instigator, TSubclassOf<UArtAction> 
 
 void UArtActionComponent::RemoveAction(UArtAction* ActionToRemove)
 {
-	/// \BUG: crashes when enemy shoots. no burning effect?
+	
 	if (!ensure(ActionToRemove && !ActionToRemove->GetIsRunning()))
 	{
 		return;
@@ -95,6 +128,12 @@ bool UArtActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 		{
 			if (Action->GetIsRunning())
 			{
+				// is client
+				if (!GetOwner()->HasAuthority())
+				{
+					ServerStopAction(Instigator, ActionName);
+				}
+
 				Action->StopAction(Instigator);
 				return true;
 			}
@@ -116,9 +155,37 @@ bool UArtActionComponent::IsInActions(TSubclassOf<UArtAction> ActionClassToCheck
 	return false;
 }
 
+void UArtActionComponent::ServerStopAction_Implementation(AActor* Instigator, FName ActionName)
+{
+	StopActionByName(Instigator, ActionName);
+}
+
 void UArtActionComponent::ServerStartAction_Implementation(AActor* Instigator, FName ActionName)
 {
 	StartActionByName(Instigator, ActionName);
+}
 
+void UArtActionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UArtActionComponent, Actions);
+}
+
+// when we replicate something, Unreal will open an ActorChannel as sort of thread to send data from client to server
+bool UArtActionComponent::ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags)
+{
+	bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+
+	// we have array of UObject, so we need to replicate them as subobjects
+	for (UArtAction* Action : Actions)
+	{
+		if (Action)
+		{
+			WroteSomething |= Channel->ReplicateSubobject(Action, *Bunch, *RepFlags);
+		}
+	}
+
+	return WroteSomething;
 }
 

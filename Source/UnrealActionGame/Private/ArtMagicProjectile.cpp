@@ -63,7 +63,7 @@ void AArtMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponen
 		{
 			DestroyProjectile();
 
-			if (ActionComponent)
+			if (ActionComponent && HasAuthority())
 			{
 				ActionComponent->AddAction(GetInstigator(), BurningActionClass);
 			}
