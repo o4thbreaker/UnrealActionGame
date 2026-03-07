@@ -33,8 +33,6 @@ AArtCharacter::AArtCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	bUseControllerRotationYaw = false;
-
-	BlackholeRageCost = 10.0f;
 }
 
 void AArtCharacter::BeginPlay()
@@ -126,12 +124,7 @@ void AArtCharacter::PrimaryAttack()
 
 void AArtCharacter::BlackholeAttack()
 {
-	/// \TODO: probably not the best design idea to put this logic and not in Blackhole_Action?
-	if (AttributeComponent->GetRage() >= BlackholeRageCost)
-	{
-		ActionComponent->StartActionByName(this, "Blackhole");
-		AttributeComponent->LoseRage(BlackholeRageCost);
-	}
+	ActionComponent->StartActionByName(this, "Blackhole");
 }
 
 void AArtCharacter::TeleportAttack()

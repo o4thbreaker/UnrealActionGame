@@ -37,18 +37,18 @@ void UArtActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 
-	for (UArtAction* Action : Actions)
-	{
-		FColor TextColor = Action->GetIsRunning() ? FColor::Blue : FColor::White;
+	//for (UArtAction* Action : Actions)
+	//{
+	//	FColor TextColor = Action->GetIsRunning() ? FColor::Blue : FColor::White;
 
-		FString ActionMsg = FString::Printf(TEXT("[%s] Action %s : IsRunning: %s : Outer: %s"),
-			*GetNameSafe(GetOwner()),
-			*GetNameSafe(Action),
-			Action->GetIsRunning() ? TEXT("true") : TEXT("false"),
-			*GetNameSafe(Action->GetOuter()));
+	//	FString ActionMsg = FString::Printf(TEXT("[%s] Action %s : IsRunning: %s : Outer: %s"),
+	//		*GetNameSafe(GetOwner()),
+	//		*GetNameSafe(Action),
+	//		Action->GetIsRunning() ? TEXT("true") : TEXT("false"),
+	//		*GetNameSafe(Action->GetOuter()));
 
-		LogOnScreen(this, ActionMsg, TextColor, 0.0f);
-	}
+	//	LogOnScreen(this, ActionMsg, TextColor, 0.0f);
+	//}
 
 }
 

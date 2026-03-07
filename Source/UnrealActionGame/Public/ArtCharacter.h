@@ -35,9 +35,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UArtActionComponent* ActionComponent;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Attributes")
-	float BlackholeRageCost;
-
 public:
 	AArtCharacter();
 

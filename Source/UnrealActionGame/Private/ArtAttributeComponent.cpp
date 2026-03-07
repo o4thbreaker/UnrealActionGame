@@ -7,17 +7,13 @@
 UArtAttributeComponent::UArtAttributeComponent()
 {
 	MaxHealth = 100.0f;
-
 	Health = MaxHealth;
 
 	//FMath::Clamp(Health, 0, MaxHealth);
 
 	MaxRage = 100.0f;
-
 	Rage = 0.0f;
-
 	RagePercentage = 10.0f;
-
 
 	// need to set this instead of SetReplicated() because of component
 	SetIsReplicatedByDefault(true);
@@ -26,6 +22,11 @@ UArtAttributeComponent::UArtAttributeComponent()
 void UArtAttributeComponent::MulticastHealthChanged_Implementation(AActor* InstigatorActor, float NewHealth, float Delta)
 {
 	OnHealthChanged.Broadcast(InstigatorActor, this, NewHealth, Delta);
+}
+
+void UArtAttributeComponent::MulticastRageChanged_Implementation(AActor* InstigatorActor, float NewRage, float Delta)
+{
+	OnRageChanged.Broadcast(this, NewRage, Delta);
 }
 
 void UArtAttributeComponent::BeginPlay()
@@ -38,18 +39,21 @@ bool UArtAttributeComponent::Kill(AActor* InstigatorActor)
 	return ApplyHealthChange(InstigatorActor, -GetMaxHealth());
 }
 
-void UArtAttributeComponent::GainRage(float DamageIntake)
+void UArtAttributeComponent::ApplyRageChange(AActor* InstigatorActor, float AmountOfDamage)
 {
-	float DamagePercent = (FMath::Abs(DamageIntake) / 100.0f) * RagePercentage;
+	if (AmountOfDamage > 0)
+	{
+		float DamagePercent = (FMath::Abs(AmountOfDamage) / 100.0f) * RagePercentage;
 
-	Rage = FMath::Clamp(Rage + DamagePercent, 0.0f, MaxRage);
-	OnRageChanged.Broadcast(this, Rage, Rage + DamagePercent);
-}
-
-void UArtAttributeComponent::LoseRage(float Amount)
-{
-	Rage = FMath::Clamp(Rage - Amount, 0.0f, MaxRage);
-	OnRageChanged.Broadcast(this, Rage, Amount);
+		Rage = FMath::Clamp(Rage + DamagePercent, 0.0f, MaxRage);
+		MulticastRageChanged(InstigatorActor, Rage, Rage + DamagePercent);
+	}
+	else if (AmountOfDamage < 0)
+	{
+		// rage should be decreased
+		Rage = FMath::Clamp(Rage + AmountOfDamage, 0.0f, MaxRage);
+		MulticastRageChanged(InstigatorActor, Rage, AmountOfDamage);
+	}
 }
 
 float UArtAttributeComponent::GetRage() const
@@ -89,7 +93,7 @@ bool UArtAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float De
 
 		if (ActualDelta < 0.0f)
 		{
-			GainRage(ActualDelta);
+			ApplyRageChange(InstigatorActor, -ActualDelta);
 		}
 
 		// died
@@ -146,5 +150,7 @@ void UArtAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 
 	DOREPLIFETIME(UArtAttributeComponent, Health);
 	DOREPLIFETIME(UArtAttributeComponent, MaxHealth);
+	DOREPLIFETIME(UArtAttributeComponent, Rage);
+	DOREPLIFETIME(UArtAttributeComponent, MaxRage);
 }
 

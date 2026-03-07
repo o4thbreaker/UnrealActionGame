@@ -26,10 +26,10 @@ public:
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Attributes")
 	float Rage;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Attributes")
 	float MaxRage;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
@@ -46,6 +46,9 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastHealthChanged(AActor* InstigatorActor, float NewHealth, float Delta);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRageChanged(AActor* InstigatorActor, float NewRage, float Delta);
+
 	virtual void BeginPlay() override;
 
 public:	
@@ -53,11 +56,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool Kill(AActor* InstigatorActor);
 
+	/* DamageIntake should be POSITIVE value if you want to GAIN rage*/
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
-	void GainRage(float DamageIntake);
-
-	UFUNCTION(BlueprintCallable, Category = "Attributes")
-	void LoseRage(float Amount);
+	void ApplyRageChange(AActor* InstigatorActor, float DamageIntake);
 
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	float GetRage() const;
