@@ -2,10 +2,16 @@
 
 
 #include "ArtPlayerState.h"
+#include "Net/UnrealNetwork.h"
 
 AArtPlayerState::AArtPlayerState()
 {
 	CurrentCoinsAmount = 0;
+}
+
+void AArtPlayerState::MulticastCoinsValueChanged_Implementation()
+{
+	OnCoinsValueChanged.Broadcast(CurrentCoinsAmount);
 }
 
 int32 AArtPlayerState::GetCoinsAmount() const
@@ -16,4 +22,13 @@ int32 AArtPlayerState::GetCoinsAmount() const
 void AArtPlayerState::SetCoinsAmount(int32 NewAmount)
 {
 	CurrentCoinsAmount = NewAmount;
+
+	MulticastCoinsValueChanged();
+}
+
+void AArtPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AArtPlayerState, CurrentCoinsAmount);
 }

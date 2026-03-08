@@ -18,8 +18,11 @@ class UNREALACTIONGAME_API AArtPlayerState : public APlayerState
 	GENERATED_BODY()
 	
 protected:
-	UPROPERTY(BlueprintReadOnly, Category = "Credits")
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Credits")
 	int32 CurrentCoinsAmount;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void  MulticastCoinsValueChanged();
 
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Credits")

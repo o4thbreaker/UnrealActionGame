@@ -27,8 +27,14 @@ protected:
 
 	FTimerHandle TimerHandle_SetVisibility;
 
+	UPROPERTY(ReplicatedUsing = "OnRep_Hide", BlueprintReadOnly)
+	bool IsHidden;
+
 protected:
 	virtual void Interact_Implementation(APawn* InstitgatorPawn) override;
+
+	UFUNCTION()
+	void OnRep_Hide();
 
 	UFUNCTION()
 	void HideItem();

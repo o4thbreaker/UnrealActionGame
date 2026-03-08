@@ -37,7 +37,7 @@ void UArtInteractionComponent::ServerInteract_Implementation(AActor* InFocus)
 
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 
-	IArtGameplayInterface::Execute_Interact(FocusedActor, OwnerPawn);
+	IArtGameplayInterface::Execute_Interact(InFocus, OwnerPawn);
 }
 
 void UArtInteractionComponent::FindBestInteractable()
