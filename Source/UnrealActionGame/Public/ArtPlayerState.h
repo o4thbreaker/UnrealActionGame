@@ -20,11 +20,21 @@ class UNREALACTIONGAME_API AArtPlayerState : public APlayerState
 	GENERATED_BODY()
 	
 protected:
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Credits")
+	UPROPERTY(ReplicatedUsing="OnRep_Coins", BlueprintReadOnly, Category = "Credits")
 	int32 CurrentCoinsAmount;
 
-	UFUNCTION(NetMulticast, Reliable)
-	void  MulticastCoinsValueChanged();
+	/*UFUNCTION(NetMulticast, Reliable)
+	void  MulticastCoinsValueChanged();*/
+
+	/// \NOTE: OnRep is better in this case than Multicast
+	///		   because with Multicast we have to send some data (due to RPC call)
+	///		   but in this case it is cheaper because of OnRep
+	///		   
+	///		   In AttributeComp we cant do the same trick because we have to pass
+	///		   the info about the Instigator
+
+	UFUNCTION()
+	void OnRep_Coins(int32 OldCoinsAmount);
 
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Credits")

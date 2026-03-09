@@ -38,14 +38,15 @@ void AArtGameModeBase::InitGame(const FString& MapName, const FString& Options, 
 
 void AArtGameModeBase::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
 {
-	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
-
 	AArtPlayerState* PlayerState = NewPlayer->GetPlayerState<AArtPlayerState>();
 
 	if (PlayerState)
 	{
 		PlayerState->LoadPlayerState(CurrentSaveGame);
 	}
+
+	// start the func after adding the Player State
+	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
 }
 
 void AArtGameModeBase::StartPlay()
@@ -283,8 +284,6 @@ void AArtGameModeBase::LoadSaveGame()
 			{
 				continue;
 			}
-
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Emerald, FString::Printf(TEXT("Actor not ignored: %s"), *Actor->GetName()));
 
 			for (FActorSaveData ActorData : CurrentSaveGame->SavedActors)
 			{
