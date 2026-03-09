@@ -33,18 +33,9 @@ void AArtItemChest::Interact_Implementation(APawn* InstigatorPawn)
 	OnRep_LidOpened();
 }
 
-// Called when the game starts or when spawned
-void AArtItemChest::BeginPlay()
+void AArtItemChest::OnActorLoaded_Implementation()
 {
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
-void AArtItemChest::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
+	OnRep_LidOpened();
 }
 
 void AArtItemChest::OnRep_LidOpened()

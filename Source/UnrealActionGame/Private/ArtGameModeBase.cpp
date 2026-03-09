@@ -11,6 +11,10 @@
 #include "ArtCharacter.h"
 #include "ArtPlayerState.h"
 #include "Kismet/GameplayStatics.h"
+#include "ArtSaveGame.h"
+#include "GameFramework/GameState.h"
+#include "ArtGameplayInterface.h"
+#include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("art.SpawnBots"), true, TEXT("Enable spawning bots via timer"), ECVF_Cheat);
 static TAutoConsoleVariable<bool> CVarSpawnItems(TEXT("art.SpawnItems"), true, TEXT("Enable spawning pick up items via timer"), ECVF_Cheat);
@@ -21,6 +25,27 @@ AArtGameModeBase::AArtGameModeBase()
 {
 	SpawnBotsTimerInterval = 2.0f;
 	SpawnPickupItemsTimerInterval = 60.0f;
+
+	SlotName = "SaveGame01";
+}
+
+void AArtGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+	Super::InitGame(MapName, Options, ErrorMessage);
+
+	LoadSaveGame();
+}
+
+void AArtGameModeBase::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
+{
+	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
+
+	AArtPlayerState* PlayerState = NewPlayer->GetPlayerState<AArtPlayerState>();
+
+	if (PlayerState)
+	{
+		PlayerState->LoadPlayerState(CurrentSaveGame);
+	}
 }
 
 void AArtGameModeBase::StartPlay()
@@ -186,3 +211,109 @@ void AArtGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
 
 	UE_LOG(LogTemp, Log, TEXT("OnActorKilled: Victim %s, Killer: %s"), *GetNameSafe(VictimActor), *GetNameSafe(Killer));
 }
+
+
+void AArtGameModeBase::WriteSaveGame()
+{
+	for (int32 i = 0; i < GameState->PlayerArray.Num(); i++)
+	{
+		AArtPlayerState* PlayerState = Cast<AArtPlayerState>(GameState->PlayerArray[i]);
+
+		if (PlayerState)
+		{
+			PlayerState->SavePlayerState(CurrentSaveGame);
+			break; // single player only. if mp - delete this string
+		}
+	}
+	
+	// clear the array to not end up saving the same actors
+	CurrentSaveGame->SavedActors.Empty();
+
+	// iterate all the actors in the world
+	for (FActorIterator It(GetWorld()); It; ++It)
+	{
+		AActor* Actor = *It;
+
+		if (!Actor->Implements<UArtGameplayInterface>())
+		{
+			continue;
+		}
+
+		FActorSaveData ActorData;
+		ActorData.ActorName = Actor->GetName();
+		ActorData.Transform = Actor->GetActorTransform();
+
+		// pass the array to fill with data from actor
+		FMemoryWriter MemWriter(ActorData.ByteData);
+
+		FObjectAndNameAsStringProxyArchive Ar(MemWriter, true);
+
+		// find only variables with UPROPERTY(SaveGame)
+		Ar.ArIsSaveGame = true;
+
+		// convert Actor's SaveGame properties into binary array
+		Actor->Serialize(Ar);
+
+		CurrentSaveGame->SavedActors.Add(ActorData);
+
+		UE_LOG(LogTemp, Log, TEXT("Actor saved: %s"), *Actor->GetName());
+	}
+
+	UGameplayStatics::SaveGameToSlot(CurrentSaveGame, SlotName, 0);
+}
+
+void AArtGameModeBase::LoadSaveGame()
+{
+	if (UGameplayStatics::DoesSaveGameExist(SlotName, 0))
+	{
+		CurrentSaveGame =  Cast<UArtSaveGame>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
+		if (CurrentSaveGame == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Failed to load SaveGame Data."));
+			return;
+		}
+
+		UE_LOG(LogTemp, Log, TEXT("Loaded SaveGame Data."));
+
+		for (FActorIterator It(GetWorld()); It; ++It)
+		{
+			AActor* Actor = *It;
+			
+			if (!Actor->GetClass()->ImplementsInterface(UArtGameplayInterface::StaticClass()))
+			{
+				continue;
+			}
+
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Emerald, FString::Printf(TEXT("Actor not ignored: %s"), *Actor->GetName()));
+
+			for (FActorSaveData ActorData : CurrentSaveGame->SavedActors)
+			{
+				if (ActorData.ActorName == Actor->GetName())
+				{
+					Actor->SetActorTransform(ActorData.Transform);
+
+					FMemoryReader MemReader(ActorData.ByteData);
+
+					FObjectAndNameAsStringProxyArchive Ar(MemReader, true);
+
+					// find only variables with UPROPERTY(SaveGame)
+					Ar.ArIsSaveGame = true;
+
+					// convert Actor's SaveGame binary array back to variables
+					Actor->Serialize(Ar);
+
+					IArtGameplayInterface::Execute_OnActorLoaded(Actor);
+
+					break;
+				}
+			}
+		}
+	}
+	else
+	{
+		CurrentSaveGame = Cast<UArtSaveGame>(UGameplayStatics::CreateSaveGameObject(UArtSaveGame::StaticClass()));
+
+		UE_LOG(LogTemp, Log, TEXT("Created new SaveGame Data."));
+	}
+}
+

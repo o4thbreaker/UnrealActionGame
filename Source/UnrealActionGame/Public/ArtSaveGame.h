@@ -1,0 +1,41 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/SaveGame.h"
+#include "ArtSaveGame.generated.h"
+
+USTRUCT()
+struct FActorSaveData
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	FString ActorName;
+
+	UPROPERTY()
+	FTransform Transform;
+
+	// uint8 = bytes
+	UPROPERTY()
+	TArray<uint8> ByteData;
+};
+
+/**
+ * 
+ */
+UCLASS()
+class UNREALACTIONGAME_API UArtSaveGame : public USaveGame
+{
+	GENERATED_BODY()
+	
+public:
+
+	UPROPERTY()
+	int32 Coins;
+	
+	UPROPERTY()
+	TArray<FActorSaveData> SavedActors;
+};

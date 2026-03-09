@@ -18,6 +18,8 @@ public:
 
 	void Interact_Implementation(APawn* InstigatorPawn);
 
+	void OnActorLoaded_Implementation();
+
 	UPROPERTY(EditAnywhere)
 	float TargetPitch;
 	
@@ -33,18 +35,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	UStaticMeshComponent* LidMesh;
 
-	UPROPERTY(ReplicatedUsing="OnRep_LidOpened", BlueprintReadOnly) // RepNotify
+	UPROPERTY(ReplicatedUsing="OnRep_LidOpened", BlueprintReadOnly, SaveGame) // RepNotify
 	bool IsLidOpened;
 
 	// always bind to UFUNCTION things that UE uses behind the scenes (e.g. ReplicatedUsing)
 	UFUNCTION()
 	void OnRep_LidOpened();
-
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 };

@@ -9,6 +9,8 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCoinsValueChanged, int32, CoinsValue);
 
+class UArtSaveGame;
+
 /**
  * 
  */
@@ -36,4 +38,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Credits")
 	void SetCoinsAmount(int32 NewAmount);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void SavePlayerState(UArtSaveGame* SaveObject);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void LoadPlayerState(UArtSaveGame* SaveObject);
 };

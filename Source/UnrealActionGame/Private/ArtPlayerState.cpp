@@ -3,6 +3,7 @@
 
 #include "ArtPlayerState.h"
 #include "Net/UnrealNetwork.h"
+#include "ArtSaveGame.h"
 
 AArtPlayerState::AArtPlayerState()
 {
@@ -24,6 +25,22 @@ void AArtPlayerState::SetCoinsAmount(int32 NewAmount)
 	CurrentCoinsAmount = NewAmount;
 
 	MulticastCoinsValueChanged();
+}
+
+void AArtPlayerState::SavePlayerState_Implementation(UArtSaveGame* SaveObject)
+{
+	if (SaveObject)
+	{
+		SaveObject->Coins = CurrentCoinsAmount;
+	}
+}
+
+void AArtPlayerState::LoadPlayerState_Implementation(UArtSaveGame* SaveObject)
+{
+	if (SaveObject)
+	{
+		CurrentCoinsAmount = SaveObject->Coins;
+	}
 }
 
 void AArtPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
