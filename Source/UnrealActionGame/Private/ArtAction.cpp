@@ -23,6 +23,10 @@ void UArtAction::StartAction_Implementation(AActor* Instigator)
 
 	RepData.IsRunning = true;
 	RepData.Instigator = Instigator;
+
+	TimeStarted = GetWorld()->TimeSeconds;
+
+	GetOwningComponent()->OnActionStarted.Broadcast(GetOwningComponent(), this);
 }
 
 void UArtAction::StopAction_Implementation(AActor* Instigator)
@@ -41,6 +45,7 @@ void UArtAction::StopAction_Implementation(AActor* Instigator)
 	RepData.IsRunning = false;
 	RepData.Instigator = Instigator;
 
+	GetOwningComponent()->OnActionStopped.Broadcast(GetOwningComponent(), this);
 }
 
 UArtActionComponent* UArtAction::GetOwningComponent() const

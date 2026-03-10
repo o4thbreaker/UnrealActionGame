@@ -59,13 +59,19 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Action")
 	bool IsAutoStart;
 
+	
+
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	UTexture2D* Icon;
 
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	UArtActionComponent* GetOwningComponent() const;
 
 	UFUNCTION()
 	void OnRep_RepData();
+
+	float TimeStarted;
 
 	UPROPERTY(Replicated)
 	UArtActionComponent* ActionComponent;
