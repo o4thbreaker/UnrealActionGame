@@ -24,7 +24,10 @@ void UArtAction::StartAction_Implementation(AActor* Instigator)
 	RepData.IsRunning = true;
 	RepData.Instigator = Instigator;
 
-	TimeStarted = GetWorld()->TimeSeconds;
+	if (GetOwningComponent()->GetOwnerRole() == ROLE_Authority)
+	{
+		TimeStarted = GetWorld()->TimeSeconds;
+	}
 
 	GetOwningComponent()->OnActionStarted.Broadcast(GetOwningComponent(), this);
 }
@@ -108,5 +111,6 @@ void UArtAction::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UArtAction, RepData);
+	DOREPLIFETIME(UArtAction, TimeStarted);
 	DOREPLIFETIME(UArtAction, ActionComponent);
 }

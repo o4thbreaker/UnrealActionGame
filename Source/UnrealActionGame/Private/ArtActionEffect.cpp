@@ -3,6 +3,7 @@
 
 #include "ArtActionEffect.h"
 #include "ArtActionComponent.h"
+#include "GameFramework/GameStateBase.h"
 
 UArtActionEffect::UArtActionEffect()
 {
@@ -53,9 +54,16 @@ void UArtActionEffect::StopAction_Implementation(AActor* Instigator)
 
 float UArtActionEffect::GetTimeRemaining() const
 {
-	float EndTime = TimeStarted + Duration;
+	AGameStateBase* GameState = GetWorld()->GetGameState<AGameStateBase>();
 
-	return EndTime - GetWorld()->TimeSeconds;
+	if (GameState)
+	{
+		float EndTime = TimeStarted + Duration;
+
+		return EndTime - GameState->GetServerWorldTimeSeconds();
+	}
+
+	return Duration;
 }
 
 void UArtActionEffect::ExecutePeriodicEffect_Implementation(AActor* Instigator)
