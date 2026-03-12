@@ -33,6 +33,8 @@ protected:
 protected:
 	virtual void Interact_Implementation(APawn* InstitgatorPawn) override;
 
+	virtual FText GetInteractText_Implementation(APawn* InstigatorPawn);
+
 	UFUNCTION()
 	void OnRep_Hide();
 

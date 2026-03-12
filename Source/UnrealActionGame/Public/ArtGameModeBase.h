@@ -5,12 +5,48 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "EnvironmentQuery/EnvQueryTypes.h"
+#include "Engine/DataTable.h"
 #include "ArtGameModeBase.generated.h"
 
 class UEnvQuery;
 class UEnvQueryInstanceBlueprintWrapper;
 class UCurveFloat;
 class UArtSaveGame;
+class UDataTable;
+class UArtMonsterData;
+
+USTRUCT(BlueprintType)
+struct FMonsterInfoRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+public:
+
+	FMonsterInfoRow()
+	{
+		Weight = 1.0f;
+		SpawnCost = 5.0f;
+		KillReward = 20.0f;
+	}
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UArtMonsterData* MonsterData;
+
+	//TSubclassOf<AActor> MonsterClass;
+
+	/* Relative chance to pick this monster*/
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float Weight;
+
+	/* Points required by gamemode to spawn this monster*/
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float SpawnCost;
+
+	/* Amount of coins awarded to killer */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float KillReward;
+};
+
 /**
  * 
  */
@@ -36,7 +72,7 @@ protected:
 	UEnvQuery* SpawnPickupItemsQuery;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	TSubclassOf<AActor> MinionClass;
+	UDataTable* MonsterTable;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	UEnvQuery* SpawnBotQuery;

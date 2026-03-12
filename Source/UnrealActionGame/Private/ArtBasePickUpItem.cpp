@@ -23,6 +23,11 @@ void AArtBasePickUpItem::Interact_Implementation(APawn* InstitgatorPawn)
 	// logic will be filled in derived classes
 }
 
+FText AArtBasePickUpItem::GetInteractText_Implementation(APawn* InstigatorPawn)
+{
+	return FText::GetEmpty();
+}
+
 void AArtBasePickUpItem::OnRep_Hide()
 {
 	StaticMeshComponent->SetVisibility(false);

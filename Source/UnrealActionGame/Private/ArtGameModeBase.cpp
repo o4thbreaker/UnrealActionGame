@@ -15,6 +15,7 @@
 #include "GameFramework/GameState.h"
 #include "ArtGameplayInterface.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
+#include "ArtMonsterData.h"
 
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("art.SpawnBots"), true, TEXT("Enable spawning bots via timer"), ECVF_Cheat);
 static TAutoConsoleVariable<bool> CVarSpawnItems(TEXT("art.SpawnItems"), true, TEXT("Enable spawning pick up items via timer"), ECVF_Cheat);
@@ -144,7 +145,16 @@ void AArtGameModeBase::OnSpawnBotQueryCompleted(UEnvQueryInstanceBlueprintWrappe
 
 	if (Locations.Num() > 0)
 	{
-		GetWorld()->SpawnActor<AActor>(MinionClass, Locations[0], FRotator::ZeroRotator);
+		if (MonsterTable)
+		{
+			TArray<FMonsterInfoRow*> Rows;
+			MonsterTable->GetAllRows("", Rows);
+
+			int32 RandomIndex = FMath::RandRange(0, Rows.Num() - 1);
+			FMonsterInfoRow* SelectedRow = Rows[RandomIndex];
+
+			GetWorld()->SpawnActor<AActor>(SelectedRow->MonsterData->MonsterClass, Locations[0], FRotator::ZeroRotator);
+		}
 	}
 }
 

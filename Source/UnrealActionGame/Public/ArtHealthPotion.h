@@ -23,6 +23,8 @@ protected:
 protected:
 	virtual void Interact_Implementation(APawn* InstitgatorPawn) override;
 
+	FText GetInteractText_Implementation(APawn* InstigatorPawn) override;
+
 private:
 	void AddHealth(UArtAttributeComponent* AttributeComp);
 };
