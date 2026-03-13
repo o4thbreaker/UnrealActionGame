@@ -30,7 +30,7 @@ public:
 	}
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UArtMonsterData* MonsterData;
+	FPrimaryAssetId MonsterId;
 
 	//TSubclassOf<AActor> MonsterClass;
 
@@ -100,6 +100,8 @@ protected:
 
 	UFUNCTION()
 	void OnSpawnItemsQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+
+	void OnMonsterLoaded(FPrimaryAssetId LoadedId, FVector SpawnLocation);
 
 	UFUNCTION()
 	void RespawnPlayerElapsed(AController* Controller);

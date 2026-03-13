@@ -16,6 +16,9 @@
 #include "ArtGameplayInterface.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 #include "ArtMonsterData.h"
+#include "../UnrealActionGame.h"
+#include "ArtActionComponent.h"
+#include "Engine/AssetManager.h"
 
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("art.SpawnBots"), true, TEXT("Enable spawning bots via timer"), ECVF_Cheat);
 static TAutoConsoleVariable<bool> CVarSpawnItems(TEXT("art.SpawnItems"), true, TEXT("Enable spawning pick up items via timer"), ECVF_Cheat);
@@ -153,7 +156,31 @@ void AArtGameModeBase::OnSpawnBotQueryCompleted(UEnvQueryInstanceBlueprintWrappe
 			int32 RandomIndex = FMath::RandRange(0, Rows.Num() - 1);
 			FMonsterInfoRow* SelectedRow = Rows[RandomIndex];
 
-			GetWorld()->SpawnActor<AActor>(SelectedRow->MonsterData->MonsterClass, Locations[0], FRotator::ZeroRotator);
+			UAssetManager* Manager = UAssetManager::GetIfValid();
+
+			if (Manager)
+			{
+				// all of them
+				TArray<FName> Bundles;
+
+				// like in timers, delegate needs to be passed to bind loading to function
+				// when the function gets triggered delegate will pass the params (SelectedRow->MonsterId, Locations[0])
+				FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this, &AArtGameModeBase::OnMonsterLoaded, SelectedRow->MonsterId, Locations[0]);
+
+				Manager->LoadPrimaryAsset(SelectedRow->MonsterId, Bundles, Delegate);
+			}
+
+			// so basically when we run this function we make the delegate to actually run the other function
+			// the other function (that is bind to the delegate) is responsible for the actual spawn
+			
+			/// \NOTE: this function needed to invoke the soft reference to actual spawn
+
+			// SUMMARY: 
+			// 1. we grab random row (SelectedRow)
+			// 2. we access the AssetManager (that stores the "pointers" to some assets)
+			// 3. we make up the delegate and pass the necessary info
+			// once LoadPrimaryAsset gets called it will send a request (while game itslef keeps running)
+			// some frames later OnMonsterLoaded will be called
 		}
 	}
 }
@@ -171,6 +198,35 @@ void AArtGameModeBase::OnSpawnItemsQueryCompleted(UEnvQueryInstanceBlueprintWrap
 	if (Locations.Num() > 0)
 	{
 		GetWorld()->SpawnActor<AActor>(PickUpItemClass, Locations[0], FRotator::ZeroRotator);
+	}
+}
+
+void AArtGameModeBase::OnMonsterLoaded(FPrimaryAssetId LoadedId, FVector SpawnLocation)
+{
+	UAssetManager* Manager = UAssetManager::GetIfValid();
+
+	if (Manager)
+	{
+		UArtMonsterData* MonsterData = Cast<UArtMonsterData>(Manager->GetPrimaryAssetObject(LoadedId));
+		if (MonsterData)
+		{
+			AActor* NewBot = GetWorld()->SpawnActor<AActor>(MonsterData->MonsterClass, SpawnLocation, FRotator::ZeroRotator);
+
+			if (NewBot)
+			{
+				LogOnScreen(this, FString::Printf(TEXT("Spawned enemy: %s (%s)"), *GetNameSafe(NewBot), *GetNameSafe(MonsterData)));
+
+				// give the guy his actions
+				UArtActionComponent* ActionComponent = Cast<UArtActionComponent>(NewBot->GetComponentByClass(UArtActionComponent::StaticClass()));
+				if (ActionComponent)
+				{
+					for (TSubclassOf<UArtAction> ActionClass : MonsterData->Actions)
+					{
+						ActionComponent->AddAction(NewBot, ActionClass);
+					}
+				}
+			}
+		}
 	}
 }
 

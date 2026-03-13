@@ -59,11 +59,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Action")
 	bool IsAutoStart;
 
-	
-
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
-	UTexture2D* Icon;
+	TSoftObjectPtr<UTexture2D> Icon;
 
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	UArtActionComponent* GetOwningComponent() const;

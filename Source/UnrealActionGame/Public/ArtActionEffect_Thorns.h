@@ -16,6 +16,10 @@ class UNREALACTIONGAME_API UArtActionEffect_Thorns : public UArtActionEffect
 {
 	GENERATED_BODY()
 
+	/// \BUG: for some reason thorns heal the player if added to minion
+	///		  i haven't diagnosed the reasons yet (but future me, u can do it)
+	///		  you are the only hope, obi-wan kenobi
+
 public:
 
 	UArtActionEffect_Thorns();
