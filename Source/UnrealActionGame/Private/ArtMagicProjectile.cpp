@@ -19,6 +19,8 @@ AArtMagicProjectile::AArtMagicProjectile()
 	FlightSoundComponent = CreateDefaultSubobject<UAudioComponent>("FlightSoundComponent");
 	FlightSoundComponent->bAutoActivate = false;
 
+	InitialLifeSpan = 10.0f;
+
 	// EVERYTHING ELSE AS IN BASE CLASS CONSTRUCTOR
 }
 

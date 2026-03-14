@@ -7,6 +7,8 @@
 #include "Net/UnrealNetwork.h"
 #include "Engine/ActorChannel.h"
 
+DECLARE_CYCLE_STAT(TEXT("StartActionByName"), STAT_StartActionByName, STATGROUP_ART);
+
 UArtActionComponent::UArtActionComponent()
 {
 	
@@ -29,6 +31,22 @@ void UArtActionComponent::BeginPlay()
 			AddAction(GetOwner(), ActionClass);
 		}
 	}
+}
+
+void UArtActionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	// need the copy because otherwise we would crash because of remove actions method
+	TArray<UArtAction*> ActionsCopy = Actions;
+
+	for (UArtAction* Action : ActionsCopy)
+	{
+		if (Action && Action->GetIsRunning())
+		{
+			Action->StopAction(GetOwner());
+		}
+	}
+
+	Super::EndPlay(EndPlayReason);
 }
 
 
@@ -122,6 +140,9 @@ bool UArtActionComponent::StartActionByName(AActor* Instigator, FName ActionName
 
 bool UArtActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 {
+	// start measuring everything down below the function
+	SCOPE_CYCLE_COUNTER(STAT_StartActionByName);
+
 	for (UArtAction* Action : Actions)
 	{
 		if (Action && Action->ActionName == ActionName)

@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 
+// always advanced i guess
+DECLARE_STATS_GROUP(TEXT("ART_Game"), STATGROUP_ART, STATCAT_Advanced);
 
 static void LogOnScreen(UObject* WorldContext, FString Msg, FColor Color = FColor::White, float Duration = 5.0f)
 {
